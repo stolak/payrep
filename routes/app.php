@@ -6,6 +6,7 @@ use App\Http\Controllers\RepaymentLogController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountJournalController;
+use App\Http\Controllers\AccountSetup;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CustomerController;
 
@@ -36,7 +37,7 @@ Route::middleware('auth')->group(function () {
         ->name('repaymentApproval');
     Route::any('loan-report', [ReportController::class, 'loan'])
         ->name('loanReport');
-        
+
     Route::any('loan-details', [ReportController::class, 'loanDetails'])
         ->name('loanDetails');
     Route::any('sub-account', [AccountController::class, 'subaccount'])
@@ -67,4 +68,8 @@ Route::middleware('auth')->group(function () {
         ->name('incomeSetup');
 
         Route::any('loan-schedule', [LoanTransactionController::class, 'schedule']);
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        Route::any('/pre-journal-post', [AccountSetup::class, 'PreJournalPost']);
 });

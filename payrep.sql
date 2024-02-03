@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Jan 30, 2024 at 05:13 PM
--- Server version: 5.7.44
--- PHP Version: 8.1.26
+-- Host: 127.0.0.1:3306
+-- Generation Time: Feb 03, 2024 at 02:02 PM
+-- Server version: 8.2.0
+-- PHP Version: 7.4.33
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `credithu_loan`
+-- Database: `payrep`
 --
 
 -- --------------------------------------------------------
@@ -27,16 +27,18 @@ SET time_zone = "+00:00";
 -- Table structure for table `account_charts`
 --
 
-CREATE TABLE `account_charts` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `groupid` int(11) NOT NULL,
-  `headid` int(11) NOT NULL,
-  `subheadid` int(11) NOT NULL,
+DROP TABLE IF EXISTS `account_charts`;
+CREATE TABLE IF NOT EXISTS `account_charts` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `groupid` int NOT NULL,
+  `headid` int NOT NULL,
+  `subheadid` int NOT NULL,
   `accountno` varchar(50) NOT NULL,
   `accountdescription` varchar(200) NOT NULL,
-  `status` int(11) NOT NULL DEFAULT '1',
-  `rank` double NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `status` int NOT NULL DEFAULT '1',
+  `rank` double NOT NULL DEFAULT '0',
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=93 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `account_charts`
@@ -137,10 +139,12 @@ INSERT INTO `account_charts` (`id`, `groupid`, `headid`, `subheadid`, `accountno
 -- Table structure for table `account_groups`
 --
 
-CREATE TABLE `account_groups` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `accountgroup` varchar(50) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `account_groups`;
+CREATE TABLE IF NOT EXISTS `account_groups` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `accountgroup` varchar(50) NOT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `account_groups`
@@ -159,12 +163,14 @@ INSERT INTO `account_groups` (`id`, `accountgroup`) VALUES
 -- Table structure for table `account_heads`
 --
 
-CREATE TABLE `account_heads` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `groupid` int(11) NOT NULL,
+DROP TABLE IF EXISTS `account_heads`;
+CREATE TABLE IF NOT EXISTS `account_heads` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `groupid` int NOT NULL,
   `accoundheadcode` varchar(20) NOT NULL,
-  `accounthead` varchar(100) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `accounthead` varchar(100) NOT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `account_heads`
@@ -185,11 +191,13 @@ INSERT INTO `account_heads` (`id`, `groupid`, `accoundheadcode`, `accounthead`) 
 -- Table structure for table `account_setups`
 --
 
-CREATE TABLE `account_setups` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `account_setups`;
+CREATE TABLE IF NOT EXISTS `account_setups` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `particular` varchar(100) NOT NULL,
-  `account_id` int(11) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `account_id` int DEFAULT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `account_setups`
@@ -207,16 +215,18 @@ INSERT INTO `account_setups` (`id`, `particular`, `account_id`) VALUES
 -- Table structure for table `account_subheads`
 --
 
-CREATE TABLE `account_subheads` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `groupid` int(11) NOT NULL,
-  `headid` int(11) NOT NULL,
+DROP TABLE IF EXISTS `account_subheads`;
+CREATE TABLE IF NOT EXISTS `account_subheads` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `groupid` int NOT NULL,
+  `headid` int NOT NULL,
   `subheadcode` varchar(50) NOT NULL,
   `subhead` varchar(50) NOT NULL,
-  `status` int(11) NOT NULL DEFAULT '1',
+  `status` int NOT NULL DEFAULT '1',
   `rank` double NOT NULL DEFAULT '0',
-  `afs` int(11) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `afs` int NOT NULL DEFAULT '0',
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `account_subheads`
@@ -236,12 +246,13 @@ INSERT INTO `account_subheads` (`id`, `groupid`, `headid`, `subheadcode`, `subhe
 -- Table structure for table `account_transactions`
 --
 
-CREATE TABLE `account_transactions` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `groupid` int(11) NOT NULL,
-  `headid` int(11) NOT NULL,
-  `subheadid` int(11) NOT NULL,
-  `accountid` int(11) NOT NULL,
+DROP TABLE IF EXISTS `account_transactions`;
+CREATE TABLE IF NOT EXISTS `account_transactions` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `groupid` int NOT NULL,
+  `headid` int NOT NULL,
+  `subheadid` int NOT NULL,
+  `accountid` int NOT NULL,
   `accountcode` varchar(200) NOT NULL,
   `debit` varchar(200) NOT NULL DEFAULT '0',
   `credit` varchar(200) NOT NULL DEFAULT '0',
@@ -251,8 +262,9 @@ CREATE TABLE `account_transactions` (
   `transdate` varchar(200) NOT NULL,
   `postby` varchar(100) NOT NULL,
   `createdat` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `is_trial` tinyint(4) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `is_trial` tinyint NOT NULL DEFAULT '1',
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1453 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `account_transactions`
@@ -1678,7 +1690,11 @@ INSERT INTO `account_transactions` (`id`, `groupid`, `headid`, `subheadid`, `acc
 (1445, 1, 1, 2, 89, '0', '149800', '0', 'Interest charge: BRIDGET', '1706607888441103', '1706607888441103', '2024-01-20', '13', '2024-01-30 10:44:48', 1),
 (1446, 5, 7, 4, 5, '0', '0', '149800', 'Interest charge: BRIDGET', '1706607888441103', '1706607888441103', '2024-01-20', '13', '2024-01-30 10:44:48', 1),
 (1447, 1, 1, 2, 65, '0', '149800', '0', 'Interest charge: Okechukwu', '1706607888944237', '1706607888944237', '2024-01-23', '13', '2024-01-30 10:44:48', 1),
-(1448, 5, 7, 4, 5, '0', '0', '149800', 'Interest charge: Okechukwu', '1706607888944237', '1706607888944237', '2024-01-23', '13', '2024-01-30 10:44:48', 1);
+(1448, 5, 7, 4, 5, '0', '0', '149800', 'Interest charge: Okechukwu', '1706607888944237', '1706607888944237', '2024-01-23', '13', '2024-01-30 10:44:48', 1),
+(1449, 1, 1, 2, 80, '0', '80143', '0', 'Interest charge: Folake', '1706778159163057', '1706778159163057', '2024-02-01', '13', '2024-02-01 10:02:39', 1),
+(1450, 5, 7, 4, 5, '0', '0', '80143', 'Interest charge: Folake', '1706778159163057', '1706778159163057', '2024-02-01', '13', '2024-02-01 10:02:39', 1),
+(1451, 1, 1, 2, 73, '0', '183511.4414', '0', 'Interest charge: golden fashions business', '1706956808255082', '1706956808255082', '2024-02-03', '13', '2024-02-03 11:40:08', 1),
+(1452, 5, 7, 4, 5, '0', '0', '183511.4414', 'Interest charge: golden fashions business', '1706956808255082', '1706956808255082', '2024-02-03', '13', '2024-02-03 11:40:08', 1);
 
 -- --------------------------------------------------------
 
@@ -1686,9 +1702,10 @@ INSERT INTO `account_transactions` (`id`, `groupid`, `headid`, `subheadid`, `acc
 -- Table structure for table `assign_role_modules`
 --
 
-CREATE TABLE `assign_role_modules` (
-  `roleid` int(11) NOT NULL,
-  `submoduleid` int(11) NOT NULL
+DROP TABLE IF EXISTS `assign_role_modules`;
+CREATE TABLE IF NOT EXISTS `assign_role_modules` (
+  `roleid` int NOT NULL,
+  `submoduleid` int NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
@@ -1767,42 +1784,85 @@ INSERT INTO `assign_role_modules` (`roleid`, `submoduleid`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `automated_record`
+--
+
+DROP TABLE IF EXISTS `automated_record`;
+CREATE TABLE IF NOT EXISTS `automated_record` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `trans_date` varchar(200) NOT NULL,
+  `serial_number` varchar(200) DEFAULT NULL,
+  `account_name` varchar(200) DEFAULT NULL,
+  `account_number` varchar(200) NOT NULL,
+  `business_name` varchar(200) DEFAULT NULL,
+  `card_account_number` varchar(200) DEFAULT NULL,
+  `transaction_type` varchar(200) NOT NULL,
+  `service_provider` varchar(200) DEFAULT NULL,
+  `bank` varchar(200) DEFAULT NULL,
+  `beneficiaryname` varchar(200) DEFAULT NULL,
+  `debit` double NOT NULL DEFAULT '0',
+  `credit` double NOT NULL DEFAULT '0',
+  `balance` double DEFAULT '0',
+  `fees` double NOT NULL DEFAULT '0',
+  `terminalID` varchar(200) DEFAULT NULL,
+  `rrn` varchar(200) DEFAULT NULL,
+  `status` varchar(200) DEFAULT NULL,
+  `reference_number` varchar(200) DEFAULT NULL,
+  `bank_charges` double NOT NULL DEFAULT '0',
+  `agent_commission` double NOT NULL DEFAULT '0',
+  `bonus` double NOT NULL DEFAULT '0',
+  `aggregator_commission` double NOT NULL DEFAULT '0',
+  `aggregator_referral` double NOT NULL DEFAULT '0',
+  `company_commission` double NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `process_status` tinyint NOT NULL DEFAULT '0',
+  `upload_title` varchar(200) NOT NULL,
+  `upload_batch` varchar(200) DEFAULT NULL,
+  `processed_at` varchar(200) DEFAULT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `customers`
 --
 
-CREATE TABLE `customers` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `titleID` int(11) DEFAULT NULL,
-  `first_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `middle_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `last_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `bvn` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `nin` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `marketerID` int(11) DEFAULT NULL,
-  `address` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `office_address` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+DROP TABLE IF EXISTS `customers`;
+CREATE TABLE IF NOT EXISTS `customers` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `titleID` int DEFAULT NULL,
+  `first_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `middle_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bvn` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nin` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `marketerID` int DEFAULT NULL,
+  `address` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `office_address` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_h_address_verified` tinyint(1) NOT NULL DEFAULT '0',
   `is_o_address_verified` tinyint(1) NOT NULL DEFAULT '0',
-  `registerdBy` int(11) NOT NULL,
-  `account_id` int(11) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `status` int(11) NOT NULL DEFAULT '0',
-  `guarrantor_full_name` longtext COLLATE utf8mb4_unicode_ci,
-  `guarrantor_phone` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `guarrantor_email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `guarrantor_o_address` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `guarrantor_h_address` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `state` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `lga` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `business` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `guarantor_business` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `remarks` longtext COLLATE utf8mb4_unicode_ci,
+  `registerdBy` int NOT NULL,
+  `account_id` int DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  `status` int NOT NULL DEFAULT '0',
+  `guarrantor_full_name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `guarrantor_phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `guarrantor_email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `guarrantor_o_address` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `guarrantor_h_address` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lga` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `business` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `guarantor_business` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remarks` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `registered_amount` double DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `customers`
@@ -1880,21 +1940,23 @@ INSERT INTO `customers` (`id`, `titleID`, `first_name`, `middle_name`, `last_nam
 -- Table structure for table `customers2`
 --
 
-CREATE TABLE `customers2` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `titleID` int(11) DEFAULT NULL,
-  `first_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `middle_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `last_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `marketerID` int(11) DEFAULT NULL,
-  `address` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `registerdBy` int(11) NOT NULL,
+DROP TABLE IF EXISTS `customers2`;
+CREATE TABLE IF NOT EXISTS `customers2` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `titleID` int DEFAULT NULL,
+  `first_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `middle_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `marketerID` int DEFAULT NULL,
+  `address` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `registerdBy` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `customers2`
@@ -1910,15 +1972,17 @@ INSERT INTO `customers2` (`id`, `titleID`, `first_name`, `middle_name`, `last_na
 -- Table structure for table `customer_documents`
 --
 
-CREATE TABLE `customer_documents` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  `loan_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `customer_documents`;
+CREATE TABLE IF NOT EXISTS `customer_documents` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `customer_id` int NOT NULL,
+  `loan_id` int DEFAULT NULL,
   `description` varchar(500) NOT NULL,
   `url` varchar(500) NOT NULL,
-  `created_by` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `created_by` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=103 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `customer_documents`
@@ -2029,15 +2093,17 @@ INSERT INTO `customer_documents` (`id`, `customer_id`, `loan_id`, `description`,
 -- Table structure for table `customer_notes`
 --
 
-CREATE TABLE `customer_notes` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  `loan_id` int(11) DEFAULT NULL,
-  `notes` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `customer_notes`;
+CREATE TABLE IF NOT EXISTS `customer_notes` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `customer_id` int NOT NULL,
+  `loan_id` int DEFAULT NULL,
+  `notes` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=515 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `customer_notes`
@@ -2566,14 +2632,17 @@ INSERT INTO `customer_notes` (`id`, `customer_id`, `loan_id`, `notes`, `created_
 -- Table structure for table `failed_jobs`
 --
 
-CREATE TABLE `failed_jobs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `uuid` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+DROP TABLE IF EXISTS `failed_jobs`;
+CREATE TABLE IF NOT EXISTS `failed_jobs` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2582,11 +2651,13 @@ CREATE TABLE `failed_jobs` (
 -- Table structure for table `fee_charges`
 --
 
-CREATE TABLE `fee_charges` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `fee_charges`;
+CREATE TABLE IF NOT EXISTS `fee_charges` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `particular` text NOT NULL,
-  `amount` double NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `amount` double NOT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `fee_charges`
@@ -2603,10 +2674,12 @@ INSERT INTO `fee_charges` (`id`, `particular`, `amount`) VALUES
 -- Table structure for table `fstage`
 --
 
-CREATE TABLE `fstage` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `stage_text` varchar(200) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `fstage`;
+CREATE TABLE IF NOT EXISTS `fstage` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `stage_text` varchar(200) NOT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `fstage`
@@ -2626,10 +2699,12 @@ INSERT INTO `fstage` (`id`, `stage_text`) VALUES
 -- Table structure for table `liquidation_types`
 --
 
-CREATE TABLE `liquidation_types` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `particular` varchar(50) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `liquidation_types`;
+CREATE TABLE IF NOT EXISTS `liquidation_types` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `particular` varchar(50) NOT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `liquidation_types`
@@ -2645,34 +2720,36 @@ INSERT INTO `liquidation_types` (`id`, `particular`) VALUES
 -- Table structure for table `loans`
 --
 
-CREATE TABLE `loans` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  `loan_type_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `loans`;
+CREATE TABLE IF NOT EXISTS `loans` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `customer_id` int NOT NULL,
+  `loan_type_id` int NOT NULL,
   `amount` double(20,2) NOT NULL DEFAULT '0.00',
   `amount_marketer` double(20,2) NOT NULL DEFAULT '0.00',
   `amount_accountant` double(20,2) NOT NULL DEFAULT '0.00',
   `amount_approved` double(20,2) NOT NULL DEFAULT '0.00',
-  `marketer_id` int(11) DEFAULT NULL,
-  `accountant_id` int(11) DEFAULT NULL,
-  `approver_id` int(11) DEFAULT NULL,
-  `period` int(11) NOT NULL,
+  `marketer_id` int DEFAULT NULL,
+  `accountant_id` int DEFAULT NULL,
+  `approver_id` int DEFAULT NULL,
+  `period` int NOT NULL,
   `percentage` double(11,2) DEFAULT NULL,
-  `approval_date` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `disbursed_date` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `approval_date` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `disbursed_date` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `total_interest` double(20,2) NOT NULL DEFAULT '0.00',
   `monthly_repayment` double(20,2) NOT NULL DEFAULT '0.00',
   `total_repayment` double(20,2) NOT NULL DEFAULT '0.00',
   `amount_outstanding` double(20,2) DEFAULT '0.00',
-  `first_due_date` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `next_due_date` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `remarks` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `stage` int(11) NOT NULL DEFAULT '0',
-  `status` int(11) NOT NULL DEFAULT '0',
-  `is_processed` tinyint(4) NOT NULL DEFAULT '0',
+  `first_due_date` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `next_due_date` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remarks` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `stage` int NOT NULL DEFAULT '0',
+  `status` int NOT NULL DEFAULT '0',
+  `is_processed` tinyint NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=90 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `loans`
@@ -2728,7 +2805,7 @@ INSERT INTO `loans` (`id`, `customer_id`, `loan_type_id`, `amount`, `amount_mark
 (58, 42, 1, 1000000.00, 1000000.00, 1000000.00, 1000000.00, 45, 43, 46, 6, 7.00, '2023-08-09', '2023-08-09', 245000.00, 207500.00, 1245000.00, 925663.34, '2023-08-09', '2024-02-09', 'BUSINESS', 7, 2, 1, '2023-07-28 12:41:04', '2024-01-09 10:03:45'),
 (59, 43, 1, 500000.00, 500000.00, 500000.00, 500000.00, 44, 43, 46, 12, 0.00, '2023-08-09', '2023-08-09', 0.00, 41666.67, 500000.00, 166633.33, '2023-08-09', '2024-02-09', 'Staff loan', 7, 2, 1, '2023-07-28 13:06:59', '2024-01-09 10:03:45'),
 (60, 44, 1, 500000.00, 500000.00, 500000.00, 500000.00, 44, 43, 46, 6, 7.00, '2023-09-04', '2023-08-30', 122500.00, 103750.00, 622500.00, 617942.53, '2023-08-30', '2024-03-01', 'Business Loan', 7, 2, 1, '2023-08-16 12:31:06', '2024-01-30 08:44:47'),
-(61, 48, 1, 2000000.00, 2000000.00, 2000000.00, 2000000.00, 44, 43, 46, 6, 7.00, '2023-09-04', '2023-09-03', 490000.00, 415000.00, 2490000.00, 1954925.35, '2023-09-03', '2024-02-03', 'Business Loan', 7, 2, 1, '2023-08-24 20:58:37', '2024-01-09 10:03:45'),
+(61, 48, 1, 2000000.00, 2000000.00, 2000000.00, 2000000.00, 44, 43, 46, 6, 7.00, '2023-09-04', '2023-09-03', 490000.00, 415000.00, 2490000.00, 2471770.13, '2023-09-03', '2024-03-03', 'Business Loan', 7, 2, 1, '2023-08-24 20:58:37', '2024-02-03 09:40:08'),
 (62, 45, 1, 1000000.00, 1000000.00, 1000000.00, 1000000.00, 45, 43, 46, 6, 7.00, '2023-09-04', '2023-08-30', 245000.00, 207500.00, 1245000.00, 670282.71, '2023-08-30', '2024-03-01', 'Business Loan', 7, 2, 1, '2023-08-28 15:40:27', '2024-01-30 08:44:47'),
 (63, 46, 1, 2000000.00, 2000000.00, 2000000.00, 2000000.00, 45, 43, 46, 6, 7.00, '2023-09-12', '2023-09-11', 490000.00, 415000.00, 2490000.00, 1375075.75, '2023-09-11', '2024-02-11', 'Business Loan', 7, 2, 1, '2023-08-28 15:46:31', '2024-01-30 08:44:47'),
 (64, 49, 1, 2000000.00, 2000000.00, 2000000.00, 2000000.00, 45, 43, 46, 6, 7.00, '2023-09-04', '2023-08-30', 490000.00, 415000.00, 2490000.00, 4105134.58, '2023-08-30', '2024-03-01', NULL, 7, 2, 1, '2023-08-28 20:00:07', '2024-01-30 08:44:47'),
@@ -2742,7 +2819,7 @@ INSERT INTO `loans` (`id`, `customer_id`, `loan_type_id`, `amount`, `amount_mark
 (72, 53, 1, 2000000.00, 2000000.00, 2000000.00, 2000000.00, 45, 43, 46, 6, 7.00, '2023-09-29', '2023-09-29', 490000.00, 415000.00, 2490000.00, 3996664.10, '2023-09-29', '2024-02-29', 'Business loan', 7, 2, 1, '2023-09-20 15:04:21', '2024-01-30 08:44:47'),
 (73, 54, 1, 2000000.00, 2000000.00, 2000000.00, 2000000.00, 45, 43, 46, 6, 7.00, '2023-09-29', '2023-09-29', 490000.00, 415000.00, 2490000.00, 1375071.67, '2023-09-29', '2024-02-29', 'BUSINESS LOAN', 7, 2, 1, '2023-09-21 07:00:06', '2024-01-30 08:44:47'),
 (75, 57, 1, 2000000.00, 2000000.00, 2000000.00, 2000000.00, 45, 43, 46, 6, 7.00, '2023-10-18', '2023-10-18', 490000.00, 415000.00, 2490000.00, 1450086.00, '2023-10-18', '2024-02-18', 'BUSINESS LOAN', 7, 2, 1, '2023-10-06 15:09:57', '2024-01-30 08:44:48'),
-(74, 55, 1, 1000000.00, 1000000.00, 1000000.00, 1000000.00, 45, 43, 46, 6, 7.00, '2023-11-01', '2023-11-01', 245000.00, 207500.00, 1245000.00, 478233.33, '2023-11-01', '2024-02-01', 'Business loan', 7, 2, 1, '2023-10-04 14:27:40', '2024-01-09 10:03:45'),
+(74, 55, 1, 1000000.00, 1000000.00, 1000000.00, 1000000.00, 45, 43, 46, 6, 7.00, '2023-11-01', '2023-11-01', 245000.00, 207500.00, 1245000.00, 725043.00, '2023-11-01', '2024-03-01', 'Business loan', 7, 2, 1, '2023-10-04 14:27:40', '2024-02-01 08:02:39'),
 (76, 56, 1, 2000000.00, 2000000.00, 2000000.00, 2000000.00, 45, 43, 46, 6, 7.00, '2023-10-18', '2023-10-18', 490000.00, 415000.00, 2490000.00, 1450086.00, '2023-10-18', '2024-02-18', 'BUSINESS LOAN', 7, 2, 1, '2023-10-06 15:11:50', '2024-01-30 08:44:48'),
 (77, 58, 1, 2000000.00, 2000000.00, 2000000.00, 2000000.00, 45, 43, 46, 6, 7.00, '2023-10-18', '2023-10-18', 490000.00, 415000.00, 2490000.00, 1450086.00, '2023-10-18', '2024-02-18', 'Business Loan', 7, 2, 1, '2023-10-11 08:16:01', '2024-01-30 08:44:48'),
 (78, 9, 1, 5000000.00, 5000000.00, 5000000.00, 5000000.00, 45, 43, 46, 6, 7.00, '2023-11-09', '2023-11-09', 1225000.00, 1037500.00, 6225000.00, 2391166.67, '2023-11-09', '2024-02-09', 'BUSINESS LOAN', 7, 2, 1, '2023-11-06 08:24:36', '2024-01-09 10:03:46'),
@@ -2764,12 +2841,14 @@ INSERT INTO `loans` (`id`, `customer_id`, `loan_type_id`, `amount`, `amount_mark
 -- Table structure for table `loan_statuses`
 --
 
-CREATE TABLE `loan_statuses` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `code` int(11) NOT NULL,
-  `status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `rank` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+DROP TABLE IF EXISTS `loan_statuses`;
+CREATE TABLE IF NOT EXISTS `loan_statuses` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `code` int NOT NULL,
+  `status` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rank` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `loan_statuses`
@@ -2789,18 +2868,20 @@ INSERT INTO `loan_statuses` (`id`, `code`, `status`, `rank`) VALUES
 -- Table structure for table `loan_transactions`
 --
 
-CREATE TABLE `loan_transactions` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  `loan_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `loan_transactions`;
+CREATE TABLE IF NOT EXISTS `loan_transactions` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `customer_id` int NOT NULL,
+  `loan_id` int NOT NULL,
   `debit` double NOT NULL DEFAULT '0',
   `credit` double NOT NULL DEFAULT '0',
-  `transaction_date` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `transaction_type` int(11) NOT NULL,
-  `remarks` text COLLATE utf8mb4_unicode_ci,
+  `transaction_date` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `transaction_type` int NOT NULL,
+  `remarks` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=589 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `loan_transactions`
@@ -3393,7 +3474,9 @@ INSERT INTO `loan_transactions` (`id`, `customer_id`, `loan_id`, `debit`, `credi
 (583, 62, 82, 149800, 0, '2024-01-20', 1, 'Interest charge', '2024-01-30 08:44:48', '2024-01-30 08:44:48'),
 (584, 63, 84, 149800, 0, '2024-01-20', 1, 'Interest charge', '2024-01-30 08:44:48', '2024-01-30 08:44:48'),
 (585, 64, 85, 149800, 0, '2024-01-20', 1, 'Interest charge', '2024-01-30 08:44:48', '2024-01-30 08:44:48'),
-(586, 40, 86, 149800, 0, '2024-01-23', 1, 'Interest charge', '2024-01-30 08:44:48', '2024-01-30 08:44:48');
+(586, 40, 86, 149800, 0, '2024-01-23', 1, 'Interest charge', '2024-01-30 08:44:48', '2024-01-30 08:44:48'),
+(587, 55, 74, 80143, 0, '2024-02-01', 1, 'Interest charge', '2024-02-01 08:02:39', '2024-02-01 08:02:39'),
+(588, 48, 61, 183511.4414, 0, '2024-02-03', 1, 'Interest charge', '2024-02-03 09:40:08', '2024-02-03 09:40:08');
 
 -- --------------------------------------------------------
 
@@ -3401,10 +3484,12 @@ INSERT INTO `loan_transactions` (`id`, `customer_id`, `loan_id`, `debit`, `credi
 -- Table structure for table `loan_types`
 --
 
-CREATE TABLE `loan_types` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `particular` varchar(50) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `loan_types`;
+CREATE TABLE IF NOT EXISTS `loan_types` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `particular` varchar(50) NOT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `loan_types`
@@ -3420,11 +3505,13 @@ INSERT INTO `loan_types` (`id`, `particular`) VALUES
 -- Table structure for table `migrations`
 --
 
-CREATE TABLE `migrations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `migration` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `batch` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+DROP TABLE IF EXISTS `migrations`;
+CREATE TABLE IF NOT EXISTS `migrations` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `migration` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `migrations`
@@ -3449,12 +3536,14 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 -- Table structure for table `modules`
 --
 
-CREATE TABLE `modules` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `modules`;
+CREATE TABLE IF NOT EXISTS `modules` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `module` varchar(200) NOT NULL,
-  `module_rank` int(11) NOT NULL DEFAULT '0',
-  `created_at` varchar(200) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `module_rank` int NOT NULL DEFAULT '0',
+  `created_at` varchar(200) DEFAULT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `modules`
@@ -3475,10 +3564,12 @@ INSERT INTO `modules` (`id`, `module`, `module_rank`, `created_at`) VALUES
 -- Table structure for table `password_resets`
 --
 
-CREATE TABLE `password_resets` (
-  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL
+DROP TABLE IF EXISTS `password_resets`;
+CREATE TABLE IF NOT EXISTS `password_resets` (
+  `email` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  KEY `password_resets_email_index` (`email`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -3495,8 +3586,9 @@ INSERT INTO `password_resets` (`email`, `token`, `created_at`) VALUES
 -- Table structure for table `payslip`
 --
 
-CREATE TABLE `payslip` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `payslip`;
+CREATE TABLE IF NOT EXISTS `payslip` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `names` varchar(50) NOT NULL,
   `emp_no` varchar(20) NOT NULL,
   `Year` varchar(10) NOT NULL,
@@ -3510,8 +3602,9 @@ CREATE TABLE `payslip` (
   `pension` double NOT NULL DEFAULT '0',
   `nhf` double NOT NULL DEFAULT '0',
   `loan` double NOT NULL DEFAULT '0',
-  `position` varchar(50) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `position` varchar(50) NOT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `payslip`
@@ -3526,12 +3619,14 @@ INSERT INTO `payslip` (`id`, `names`, `emp_no`, `Year`, `Month`, `basic`, `housi
 -- Table structure for table `rates`
 --
 
-CREATE TABLE `rates` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `rates`;
+CREATE TABLE IF NOT EXISTS `rates` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `rate` double(4,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `rates`
@@ -3546,19 +3641,21 @@ INSERT INTO `rates` (`id`, `rate`, `created_at`, `updated_at`) VALUES
 -- Table structure for table `repayment_logs`
 --
 
-CREATE TABLE `repayment_logs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  `loan_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `repayment_logs`;
+CREATE TABLE IF NOT EXISTS `repayment_logs` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `customer_id` int NOT NULL,
+  `loan_id` int NOT NULL,
   `amount` double(20,2) NOT NULL,
-  `created_by` int(11) NOT NULL,
-  `is_approved` int(11) NOT NULL DEFAULT '0',
-  `approved_by` int(11) DEFAULT NULL,
-  `details` varchar(2000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `payment_date` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int NOT NULL,
+  `is_approved` int NOT NULL DEFAULT '0',
+  `approved_by` int DEFAULT NULL,
+  `details` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `payment_date` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=300 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `repayment_logs`
@@ -3851,11 +3948,13 @@ INSERT INTO `repayment_logs` (`id`, `customer_id`, `loan_id`, `amount`, `created
 -- Table structure for table `setup_subheads`
 --
 
-CREATE TABLE `setup_subheads` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `setup_subheads`;
+CREATE TABLE IF NOT EXISTS `setup_subheads` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `particular` varchar(100) NOT NULL,
-  `subhead_id` int(11) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `subhead_id` int DEFAULT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `setup_subheads`
@@ -3871,9 +3970,11 @@ INSERT INTO `setup_subheads` (`id`, `particular`, `subhead_id`) VALUES
 -- Table structure for table `statuses`
 --
 
-CREATE TABLE `statuses` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `status` varchar(100) NOT NULL
+DROP TABLE IF EXISTS `statuses`;
+CREATE TABLE IF NOT EXISTS `statuses` (
+  `id` bigint UNSIGNED NOT NULL,
+  `status` varchar(100) NOT NULL,
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -3890,14 +3991,16 @@ INSERT INTO `statuses` (`id`, `status`) VALUES
 -- Table structure for table `submodules`
 --
 
-CREATE TABLE `submodules` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `moduleid` int(11) NOT NULL,
+DROP TABLE IF EXISTS `submodules`;
+CREATE TABLE IF NOT EXISTS `submodules` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `moduleid` int NOT NULL,
   `submodule` varchar(100) NOT NULL,
   `links` varchar(200) NOT NULL,
-  `rank` int(11) NOT NULL DEFAULT '0',
-  `status` tinyint(4) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `rank` int NOT NULL DEFAULT '0',
+  `status` tinyint NOT NULL DEFAULT '1',
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `submodules`
@@ -3937,11 +4040,13 @@ INSERT INTO `submodules` (`id`, `moduleid`, `submodule`, `links`, `rank`, `statu
 -- Table structure for table `tbldaterange`
 --
 
-CREATE TABLE `tbldaterange` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `tbldaterange`;
+CREATE TABLE IF NOT EXISTS `tbldaterange` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `date_from` varchar(100) DEFAULT NULL,
-  `date_to` varchar(100) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `date_to` varchar(100) DEFAULT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `tbldaterange`
@@ -3956,9 +4061,11 @@ INSERT INTO `tbldaterange` (`id`, `date_from`, `date_to`) VALUES
 -- Table structure for table `tblstatus`
 --
 
-CREATE TABLE `tblstatus` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `status` varchar(100) NOT NULL
+DROP TABLE IF EXISTS `tblstatus`;
+CREATE TABLE IF NOT EXISTS `tblstatus` (
+  `id` bigint UNSIGNED NOT NULL,
+  `status` varchar(100) NOT NULL,
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -3975,24 +4082,33 @@ INSERT INTO `tblstatus` (`id`, `status`) VALUES
 -- Table structure for table `tbltemp_journal_transfer`
 --
 
-CREATE TABLE `tbltemp_journal_transfer` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `tbltemp_journal_transfer`;
+CREATE TABLE IF NOT EXISTS `tbltemp_journal_transfer` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `transtype` varchar(100) NOT NULL,
-  `accountid` int(11) NOT NULL,
+  `accountid` int NOT NULL,
   `debit` double NOT NULL DEFAULT '0',
   `credit` double NOT NULL DEFAULT '0',
-  `status` int(11) NOT NULL DEFAULT '0',
-  `batch_status` int(11) NOT NULL DEFAULT '1',
+  `status` int NOT NULL DEFAULT '0',
+  `batch_status` int NOT NULL DEFAULT '1',
   `ref` varchar(200) DEFAULT NULL,
   `manual_ref` varchar(200) DEFAULT NULL,
   `transdate` varchar(200) DEFAULT NULL,
   `post_at` varchar(100) DEFAULT NULL,
-  `postby` int(11) DEFAULT NULL,
+  `postby` int DEFAULT NULL,
   `remarks` text NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `f_post_at` varchar(200) DEFAULT NULL,
-  `final_post_by` int(11) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `final_post_by` int NOT NULL DEFAULT '0',
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `tbltemp_journal_transfer`
+--
+
+INSERT INTO `tbltemp_journal_transfer` (`id`, `transtype`, `accountid`, `debit`, `credit`, `status`, `batch_status`, `ref`, `manual_ref`, `transdate`, `post_at`, `postby`, `remarks`, `created_at`, `f_post_at`, `final_post_by`) VALUES
+(1, 'Debit', 12, 777, 0, 0, 1, NULL, NULL, NULL, NULL, 13, '7u7', '2024-02-01 17:23:42', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -4000,7 +4116,8 @@ CREATE TABLE `tbltemp_journal_transfer` (
 -- Table structure for table `tbltranstype`
 --
 
-CREATE TABLE `tbltranstype` (
+DROP TABLE IF EXISTS `tbltranstype`;
+CREATE TABLE IF NOT EXISTS `tbltranstype` (
   `transtype` varchar(50) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -4018,12 +4135,14 @@ INSERT INTO `tbltranstype` (`transtype`) VALUES
 -- Table structure for table `titles`
 --
 
-CREATE TABLE `titles` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `title` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+DROP TABLE IF EXISTS `titles`;
+CREATE TABLE IF NOT EXISTS `titles` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `titles`
@@ -4039,21 +4158,24 @@ INSERT INTO `titles` (`id`, `title`, `created_at`, `updated_at`) VALUES
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `username` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `userrole` int(11) NOT NULL DEFAULT '0',
-  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `username` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `userrole` int NOT NULL DEFAULT '0',
+  `email` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
-  `password` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `usertype` int(11) NOT NULL DEFAULT '0',
-  `status` int(11) NOT NULL DEFAULT '1',
-  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `createdby` int(11) NOT NULL DEFAULT '0',
+  `password` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `usertype` int NOT NULL DEFAULT '0',
+  `status` int NOT NULL DEFAULT '1',
+  `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `createdby` int NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`)
+) ENGINE=MyISAM AUTO_INCREMENT=109 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
@@ -4141,13 +4263,15 @@ INSERT INTO `users` (`id`, `name`, `username`, `userrole`, `email`, `email_verif
 -- Table structure for table `user_roles`
 --
 
-CREATE TABLE `user_roles` (
-  `id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `user_roles`;
+CREATE TABLE IF NOT EXISTS `user_roles` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `rolename` varchar(50) NOT NULL,
-  `status` tinyint(4) NOT NULL DEFAULT '1',
-  `editable` tinyint(4) NOT NULL DEFAULT '1',
-  `assignabled` tinyint(4) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `status` tinyint NOT NULL DEFAULT '1',
+  `editable` tinyint NOT NULL DEFAULT '1',
+  `assignabled` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `user_roles`
@@ -4160,394 +4284,6 @@ INSERT INTO `user_roles` (`id`, `rolename`, `status`, `editable`, `assignabled`)
 (4, 'Finance Officer', 1, 0, 1),
 (5, 'Customer', 1, 0, 0),
 (6, 'Verification Officer', 1, 0, 1);
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `account_charts`
---
-ALTER TABLE `account_charts`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `account_groups`
---
-ALTER TABLE `account_groups`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `account_heads`
---
-ALTER TABLE `account_heads`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `account_setups`
---
-ALTER TABLE `account_setups`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `account_subheads`
---
-ALTER TABLE `account_subheads`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `account_transactions`
---
-ALTER TABLE `account_transactions`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `customers`
---
-ALTER TABLE `customers`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `customers2`
---
-ALTER TABLE `customers2`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `customer_documents`
---
-ALTER TABLE `customer_documents`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `customer_notes`
---
-ALTER TABLE `customer_notes`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `failed_jobs`
---
-ALTER TABLE `failed_jobs`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`);
-
---
--- Indexes for table `fee_charges`
---
-ALTER TABLE `fee_charges`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `fstage`
---
-ALTER TABLE `fstage`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `liquidation_types`
---
-ALTER TABLE `liquidation_types`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `loans`
---
-ALTER TABLE `loans`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `loan_statuses`
---
-ALTER TABLE `loan_statuses`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `loan_transactions`
---
-ALTER TABLE `loan_transactions`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `loan_types`
---
-ALTER TABLE `loan_types`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `migrations`
---
-ALTER TABLE `migrations`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `modules`
---
-ALTER TABLE `modules`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `password_resets`
---
-ALTER TABLE `password_resets`
-  ADD KEY `password_resets_email_index` (`email`);
-
---
--- Indexes for table `payslip`
---
-ALTER TABLE `payslip`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `rates`
---
-ALTER TABLE `rates`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `repayment_logs`
---
-ALTER TABLE `repayment_logs`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `setup_subheads`
---
-ALTER TABLE `setup_subheads`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `statuses`
---
-ALTER TABLE `statuses`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `submodules`
---
-ALTER TABLE `submodules`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `tbldaterange`
---
-ALTER TABLE `tbldaterange`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `tblstatus`
---
-ALTER TABLE `tblstatus`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `tbltemp_journal_transfer`
---
-ALTER TABLE `tbltemp_journal_transfer`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Indexes for table `titles`
---
-ALTER TABLE `titles`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `users_email_unique` (`email`);
-
---
--- Indexes for table `user_roles`
---
-ALTER TABLE `user_roles`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `account_charts`
---
-ALTER TABLE `account_charts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
-
---
--- AUTO_INCREMENT for table `account_groups`
---
-ALTER TABLE `account_groups`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `account_heads`
---
-ALTER TABLE `account_heads`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `account_setups`
---
-ALTER TABLE `account_setups`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `account_subheads`
---
-ALTER TABLE `account_subheads`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
---
--- AUTO_INCREMENT for table `account_transactions`
---
-ALTER TABLE `account_transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1449;
-
---
--- AUTO_INCREMENT for table `customers`
---
-ALTER TABLE `customers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
-
---
--- AUTO_INCREMENT for table `customers2`
---
-ALTER TABLE `customers2`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `customer_documents`
---
-ALTER TABLE `customer_documents`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
-
---
--- AUTO_INCREMENT for table `customer_notes`
---
-ALTER TABLE `customer_notes`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=515;
-
---
--- AUTO_INCREMENT for table `failed_jobs`
---
-ALTER TABLE `failed_jobs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `fee_charges`
---
-ALTER TABLE `fee_charges`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `fstage`
---
-ALTER TABLE `fstage`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT for table `liquidation_types`
---
-ALTER TABLE `liquidation_types`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `loans`
---
-ALTER TABLE `loans`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
-
---
--- AUTO_INCREMENT for table `loan_statuses`
---
-ALTER TABLE `loan_statuses`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT for table `loan_transactions`
---
-ALTER TABLE `loan_transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=587;
-
---
--- AUTO_INCREMENT for table `loan_types`
---
-ALTER TABLE `loan_types`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `migrations`
---
-ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
-
---
--- AUTO_INCREMENT for table `modules`
---
-ALTER TABLE `modules`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `payslip`
---
-ALTER TABLE `payslip`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `rates`
---
-ALTER TABLE `rates`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `repayment_logs`
---
-ALTER TABLE `repayment_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=300;
-
---
--- AUTO_INCREMENT for table `setup_subheads`
---
-ALTER TABLE `setup_subheads`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `submodules`
---
-ALTER TABLE `submodules`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
-
---
--- AUTO_INCREMENT for table `tbldaterange`
---
-ALTER TABLE `tbldaterange`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `tbltemp_journal_transfer`
---
-ALTER TABLE `tbltemp_journal_transfer`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `titles`
---
-ALTER TABLE `titles`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=109;
-
---
--- AUTO_INCREMENT for table `user_roles`
---
-ALTER TABLE `user_roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

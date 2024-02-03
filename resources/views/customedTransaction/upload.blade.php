@@ -220,7 +220,7 @@
 									<div class="col-12 col-sm-12">
 										<div class="form-group">
 											<label>File</label>
-											<input type="file" class="form-control" name="document">
+											<input type="file" class="form-control" name="file">
 										</div>
 									</div>
 							    </div>

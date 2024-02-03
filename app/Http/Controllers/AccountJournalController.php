@@ -154,8 +154,8 @@ class AccountJournalController extends Controller
     $postby=Auth::user()->id;
     $data['AccountTransType'] =DB::table('tbltranstype')->get();
     $data['JournalPending'] = AccountTrait::journalPending(0);
-   $crdr= DB::sELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
-   $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
+    $crdr= DB::sELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
+    $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
     $data['crbal'] = ($crdr<0)? abs($crdr):'';
     $data['drbal'] = ($crdr>0)? abs($crdr):'';
 

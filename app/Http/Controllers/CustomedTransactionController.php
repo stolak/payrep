@@ -42,6 +42,7 @@ class CustomedTransactionController extends Controller
         if ($data['transactionType'] == '') {$data['transactionType'] = Session::get('transactionType');}
         Session(['transactionType' => $data['transactionType']]);
 
+        
        
 
            $data['toDate']=$request->input('toDate');
@@ -50,6 +51,64 @@ class CustomedTransactionController extends Controller
            $data['fromDate']=$request->input('fromDate');
            if($data['fromDate']==""){$data['fromDate']=date("Y").'-01-01';}
 
+           if (isset($_POST['addnew'])) {
+            $this->validate($request, [
+                'description' => 'required|string|unique:tblautomated_record,upload_title',
+            ]);
+            $refno = $this->RefNo();
+            
+            $mimes = array('application/vnd.ms-excel', 'text/csv', 'text/tsv');
+            $file = $_FILES['upload']['tmp_name'];
+            if (($file == "") || !(in_array($_FILES['upload']['type'], $mimes))) {return back()->with('error_message', 'Invalid file.');} else {
+
+                $handle = fopen($file, "r");
+                $c = 0;
+                while (($filesop = fgetcsv($handle, 1000, ",")) !== false) {
+
+                    $tmpphoneno = $filesop[0];
+                    $tmpvalue = $filesop[1];
+                    if ($c == 0 || $tmpphoneno == "" || $tmpvalue == "") {
+                        $c = 1;
+                    } else {
+                       
+                        if (($filesop[9] == 'successful')) {
+                            $transdate = $this->UpdatetransactionDate($filesop[0]);
+                            $filesop5 = preg_replace('/[^\d.]/', '', $filesop[5]);
+                            $filesop6 = preg_replace('/[^\d.]/', '', $filesop[6]);
+                            $filesop7 = preg_replace('/[^\d.]/', '', $filesop[7]);
+                            $filesop11 = preg_replace('/[^\d.]/', '', $filesop[11]);
+                            $filesop12 = preg_replace('/[^\d.]/', '', $filesop[12]);
+                            $filesop13 = preg_replace('/[^\d.]/', '', $filesop[13]);
+                            $filesop14 = preg_replace('/[^\d.]/', '', $filesop[14]);
+                            DB::table('tblautomated_record')->insert([
+                                'date_time' => $filesop[0],
+                                'trans_date' => $transdate,
+                                'agent' => $filesop[1],
+                                'organisation' => $filesop[2],
+                                'product_type' => $filesop[3],
+                                'bankpos' => $filesop[4],
+                                'debit' => !is_numeric($filesop5) ? 0 : $filesop5,
+                                'credit' => !is_numeric($filesop6) ? 0 : $filesop6,
+                                'fees' => !is_numeric($filesop7) ? 0 : $filesop7,
+                                'third_party_ref' => $filesop[8],
+                                'status' => $filesop[9],
+                                'ref_no' => $filesop[10],
+                                'bank_charge' => !is_numeric($filesop11) ? 0 : $filesop11,
+                                'agentcom' => !is_numeric($filesop12) ? 0 : $filesop12,
+                                'payrepcom' => !is_numeric($filesop13) ? 0 : $filesop13,
+                                'discount' => !is_numeric($filesop14) ? 0 : $filesop14,
+                                'process_status' => 0,
+                                'upload_title' => $data['description'],
+                                'upload_batch' => $refno,
+                                'is_old' => $data['isold'] ? $data['isold'] : 0,
+
+                            ]);
+                        }
+                    }
+                }
+            }
+            return back()->with('message', 'record successfully updated.');
+        }
        
         $data['records']= [];
 

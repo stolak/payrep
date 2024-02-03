@@ -22,20 +22,20 @@ use App\Http\Traits\AccountTrait;
 
 class AccountJournalController extends Controller
 {
- 
+
 
    public function journal(Request $request)
     {
 
     $data['accountNumber'] = SessionTrait::validate($request, 'accountNumber');
-    
+
     $data['accountnames'] = SessionTrait::validate($request, 'accountnames');
     $data['transactiontype'] = SessionTrait::validate($request, 'transactiontype');
     $data['debitamount'] = SessionTrait::validate($request, 'debitamount');
     $data['creditamount'] = SessionTrait::validate($request, 'creditamount');
     $data['remarks'] = SessionTrait::validate($request, 'remarks');
     $data['accounts'] = [];
-    
+
 
     $data['acctid']=$request->input('acctid');
    	$data['id']=$request->input('id');
@@ -89,12 +89,12 @@ class AccountJournalController extends Controller
             ],[],[
             'transdate'=>'Transaction Date',
             ]);
-            
+
             //dd("Validated pls check later");
              $data['JournalPending'] =AccountTrait::journalPending(0);
             $refno=AccountTrait::RefNo();
             $userid=Auth::user()->id;
-	    
+
              DB::table('tbltemp_journal_transfer')->where('postby',Auth::user()->id)->where('status',0)->update([
     	          'status' => 1 ,
     	          'ref' => $refno ,
@@ -105,18 +105,18 @@ class AccountJournalController extends Controller
     	        foreach ($data['JournalPending'] as $b){
     	          if ($b->debit!=0) {
                   AccountTrait::debitAccount($b->accountid, $b->debit,$refno,$data['transdate'],$b->remarks,$userid,$data['manual_ref']);
-    	              
+
     	          }
     	          if ($b->credit!=0) {
-                  AccountTrait::creditAccount($b->accountid, $b->credit,$refno,$data['transdate'],$b->remarks,$userid, $data['manual_ref']); 
+                  AccountTrait::creditAccount($b->accountid, $b->credit,$refno,$data['transdate'],$b->remarks,$userid, $data['manual_ref']);
     	          }
     	        }
     	        return back()->with('message','record successfully updated.'  );
          }
          $del=$request->input('delid');
-         
+
          if(DB::delete("DELETE FROM `tbltemp_journal_transfer` WHERE `id`='$del'")) return back()->with('message','record successfully deleted!'  );
-        
+
         if ( isset( $_POST['update'] ) ) {
             $this->validate($request, [
             'id'      => 'required',
@@ -149,7 +149,7 @@ class AccountJournalController extends Controller
     	        return back()->with('message','record successfully updated.'  );
          }
 
-    
+
     $data['AccountList'] =AccountChart::all() ;
     $postby=Auth::user()->id;
     $data['AccountTransType'] =DB::table('tbltranstype')->get();
@@ -158,9 +158,9 @@ class AccountJournalController extends Controller
    $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
     $data['crbal'] = ($crdr<0)? abs($crdr):'';
     $data['drbal'] = ($crdr>0)? abs($crdr):'';
-    
+
 	return view('account.journal', $data);
-	    
+
    }
-   
+
 }

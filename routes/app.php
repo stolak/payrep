@@ -8,7 +8,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountJournalController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CustomerController;
-
+use App\Http\Controllers\CustomedTransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
@@ -67,4 +67,6 @@ Route::middleware('auth')->group(function () {
         ->name('incomeSetup');
 
         Route::any('loan-schedule', [LoanTransactionController::class, 'schedule']);
+
+        Route::any('custom/upload',      [CustomedTransactionController::class, 'upload']);
 });

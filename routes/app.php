@@ -9,7 +9,7 @@ use App\Http\Controllers\AccountJournalController;
 use App\Http\Controllers\AccountSetup;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CustomerController;
-
+use App\Http\Controllers\CustomedTransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
@@ -72,4 +72,5 @@ Route::middleware('auth')->group(function () {
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         Route::any('/pre-journal-post', [AccountSetup::class, 'PreJournalPost']);
+        Route::any('custom/upload',      [CustomedTransactionController::class, 'upload']);
 });

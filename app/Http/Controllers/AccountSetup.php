@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
+use App\Models\AccountChart;
 use DB;
 use Auth;
 use Illuminate\Support\Facades\URL;
@@ -11,7 +12,8 @@ use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\Input;
 use Session;
-class AccountSetup extends Basefunction {
+use App\Http\Traits\AccountTrait;
+class AccountSetup extends Controller {
 
     public function SubAccount(Request $request)
     {
@@ -726,7 +728,7 @@ class AccountSetup extends Basefunction {
         $data['transdate']=$request->input('transdate');
         $data['remarks']=$request->input('remarks');
         $data['accountnames']=$request->input('accountnames');
-        $data['accountname']=$this->AccountName($data['acctid']);
+        // $data['accountname']=$this->AccountName($data['acctid']);
         $data['manual_ref']=$request->input('manual_ref');
         $data['id']=$request->input('id');
         // dd($data['acctid']);
@@ -774,7 +776,7 @@ class AccountSetup extends Basefunction {
             ],[],[
             'transdate'=>'Transaction Date',
             ]);
-            $data['JournalPending'] =$this->JournalPending('0');
+            $data['JournalPending'] =$this->JournalPending(0);
             $refno=$this->RefNo();
             $userid=Auth::user()->id;
 
@@ -837,19 +839,30 @@ class AccountSetup extends Basefunction {
                 return back()->with('message','record successfully updated.'  );
         }
 
-        $data['AccountList'] = $this->AccountList('','');
-        $data['AccountTransType'] = $this->AccountTransType();
-        $data['JournalPending'] = $this->JournalPending(0);
-        //dd($data['ref']);
-        $data['SelectedJournalPending'] = $this->SelectedJournalPending($data['ref'],0);
-        $data['UnpostedJournalPending'] = $this->UnpostedJournalPending_sef(0);
-        $request->session()->forget('ref');
+        // $data['AccountList'] = $this->AccountList('','');
+        // $data['AccountTransType'] = $this->AccountTransType();
+        // $data['JournalPending'] = $this->JournalPending(0);
+        // //dd($data['ref']);
+        // $data['SelectedJournalPending'] = $this->SelectedJournalPending($data['ref'],0);
+        // $data['UnpostedJournalPending'] = $this->UnpostedJournalPending_sef(0);
+        // $request->session()->forget('ref');
 
-        $postby= Auth::user()->id;
+        // $postby= Auth::user()->id;
+        // $crdr= DB::sELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
+        // $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
+        // $data['crbal'] = ($crdr<0)? abs($crdr):'';
+        // $data['drbal'] = ($crdr>0)? abs($crdr):'';
+
+        $data['AccountList'] =AccountChart::all() ;
+        $postby=Auth::user()->id;
+        $data['AccountTransType'] =DB::table('tbltranstype')->get();
+        $data['JournalPending'] = AccountTrait::journalPending(0);
         $crdr= DB::sELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
         $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
         $data['crbal'] = ($crdr<0)? abs($crdr):'';
         $data['drbal'] = ($crdr>0)? abs($crdr):'';
+
+
         return view('AccountSetup.pre-journaltransfer', $data);
 
     }

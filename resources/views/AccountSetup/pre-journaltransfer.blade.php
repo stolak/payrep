@@ -169,8 +169,8 @@
                                                     <td><input type="text" class="form-control"
                                                             value="{{ $data->transtype }}" readonly></td>
                                                     <td><input type="text" class="form-control"
-                                                            value="{{ $data->account_details }}" readonly
-                                                            title="{{ $data->account_details }}"></td>
+                                                            value="{{ $data->accountdescription }}" readonly
+                                                            title="{{ $data->accountdescription }}"></td>
                                                     <td><input type="text" class="form-control"
                                                             value="{{ number_format($data->debit, 2, '.', ',') }}"
                                                             readonly style="text-align: right; "></td>
@@ -182,13 +182,15 @@
                                                             value="{{ $data->remarks }}" readonly></td>
                                                     <td>
                                                         <a onclick="editfunc('{{ $data->id }}','{{ $data->transtype }}','{{ $data->accountid }}','{{ $data->debit }}','{{ $data->credit }}','{{ $data->remarks }}')"
-                                                            class="fa fa-edit btn-xs" style="color:rgb(14, 147, 81)"></a>&nbsp;
+                                                            class="fa fa-edit btn-xs"
+                                                            style="color:rgb(14, 147, 81)"></a>&nbsp;
 
                                                         <a href="javascript: deletefunc('{{ $data->id }}')"><i
                                                                 class="fa fa-trash" style="color:red"></i></a>
                                                     </td>
                                                 </tr>
                                             @endforeach
+
                                             <tr>
                                                 <td>Total</td>
                                                 <td>
@@ -220,12 +222,10 @@
                                                     @endif
                                                 </td>
                                             </tr>
-
-
                                         </table>
                                     </div>
                                     <br>
-                                    @if ($SelectedJournalPending)
+                                    @if ($JournalPending)
                                         <div class="table-responsive" style="font-size: 12px;">
                                             <table class="table table-bordered table-striped table-highlight">
                                                 <tr>
@@ -240,7 +240,7 @@
                                                     $totaldebit = 0;
                                                     $totalcredit = 0;
                                                 @endphp
-                                                @foreach ($SelectedJournalPending as $data)
+                                                @foreach ($JournalPending as $data)
                                                     @php
                                                         $totaldebit += $data->debit;
                                                         $totalcredit += $data->credit;
@@ -249,7 +249,7 @@
                                                         <td><input type="text" class="form-control"
                                                                 value="{{ $data->transtype }}" readonly></td>
                                                         <td><input type="text" class="form-control"
-                                                                value="{{ $data->account_details }}" readonly></td>
+                                                                value="{{ $data->accountdescription }}" readonly></td>
                                                         <td><input type="text" class="form-control"
                                                                 value="{{ number_format($data->debit, 2, '.', ',') }}"
                                                                 readonly style="text-align: right; "></td>

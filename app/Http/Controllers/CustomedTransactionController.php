@@ -72,50 +72,62 @@ class CustomedTransactionController extends Controller
 
                 $handle = fopen($file, "r");
                 $c = 0;
-         
+         $statues=[];
                 while (($filesop = fgetcsv($handle, 1000, ",")) !== false) {
                     // dd($filesop);
-                    $tmpphoneno = $filesop[0];
-                    $tmpvalue = $filesop[1];
-                    if ($c == 0 || $tmpphoneno == "" || $tmpvalue == "") {
+                    $dateval = $filesop[0];
+                    $accountvalue = $filesop[3];
+
+                    if ($c == 0 || $dateval == "" || $accountvalue == "") {
                         $c = 1;
+                        array_push($statues,$filesop[16]);
+ 
                     } else {
 
-                        if (($filesop[9] !== 'successful')) {
+                        if (($filesop[16] == 'successful')) {
+                         
                             // $transdate = $this->UpdatetransactionDate($filesop[0]);
                             $transdate = $filesop[0];
-                            $filesop5 = preg_replace('/[^\d.]/', '', $filesop[5]);
-                            $filesop6 = preg_replace('/[^\d.]/', '', $filesop[6]);
-                            $filesop7 = preg_replace('/[^\d.]/', '', $filesop[7]);
+                            $filesop10 = preg_replace('/[^\d.]/', '', $filesop[10]);
                             $filesop11 = preg_replace('/[^\d.]/', '', $filesop[11]);
                             $filesop12 = preg_replace('/[^\d.]/', '', $filesop[12]);
+                            $filesop12 = preg_replace('/[^\d.]/', '', $filesop[12]);
                             $filesop13 = preg_replace('/[^\d.]/', '', $filesop[13]);
-                            $filesop14 = preg_replace('/[^\d.]/', '', $filesop[14]);
+                            $filesop18 = preg_replace('/[^\d.]/', '', $filesop[18]);
+                            $filesop19 = preg_replace('/[^\d.]/', '', $filesop[19]);
+                            $filesop20 = preg_replace('/[^\d.]/', '', $filesop[20]);
+
+                            $filesop21 = preg_replace('/[^\d.]/', '', $filesop[21]);
+
+                            $filesop22 = preg_replace('/[^\d.]/', '', $filesop[22]);
+
+                            $filesop23 = preg_replace('/[^\d.]/', '', $filesop[23]);
+
                             DB::table('automated_record')->insert([
                                 'trans_date' => $filesop[0],
-                                'serial_number' => $transdate,
-                                'account_name' => $filesop[1],
-                                'account_number' => $filesop[2],
-                                'business_name' => $filesop[3],
-                                'card_account_number' => $filesop[4],
-                                'transaction_type' => $filesop[3],
-                                'service_provider' => $filesop[4],
-                                'bank' => $filesop[3],
-                                'beneficiaryname' => $filesop[4],
-                                'debit' => $filesop[3],
-                                'credit' => $filesop[4],
-                                'balance' => $filesop[3],
-                                'fees' => $filesop[4],
-                                'terminalID' => $filesop[3],
-                                'rrn' => $filesop[4],
-                                'status' => $filesop[3],
-                                'reference_number' => $filesop[4],
-                                'bank_charges' => !is_numeric($filesop5) ? 0 : $filesop5,
-                                'agent_commission' => !is_numeric($filesop6) ? 0 : $filesop6,
-                                'bonus' => !is_numeric($filesop7) ? 0 : $filesop7,
-                                'aggregator_commission' => $filesop[8],
-                                'aggregator_referral' => $filesop[9],
-                                'company_commission' => $filesop[10],
+                                'serial_number' =>$filesop[1],// $transdate,
+                                'account_name' => $filesop[2],
+                                'account_number' => $filesop[3],
+                                'business_name' => $filesop[4],
+                                'card_account_number' => $filesop[5],
+                                'transaction_type' => $filesop[6],
+                                'service_provider' => $filesop[7],
+                                'bank' => $filesop[8],
+                                'beneficiaryname' => $filesop[9],
+                                'debit' => !is_numeric( $filesop10) ? 0 : $filesop10,
+                                'credit' => !is_numeric( $filesop11) ? 0 : $filesop11,
+                                'balance' =>!is_numeric( $filesop12) ? 0 : $filesop12, 
+                                'fees' => !is_numeric( $filesop13) ? 0 : $filesop13,
+                                'terminalID' => $filesop[14],
+                                'rrn' => $filesop[15],
+                                'status' => $filesop[16],
+                                'reference_number' => $filesop[17],
+                                'bank_charges' => !is_numeric( $filesop18) ? 0 : $filesop18,
+                                'agent_commission' => !is_numeric( $filesop19) ? 0 : $filesop19,
+                                'bonus' => !is_numeric( $filesop20) ? 0 :  $filesop20,
+                                'aggregator_commission' =>  !is_numeric( $filesop21) ? 0 :  $filesop21,
+                                'aggregator_referral' =>  !is_numeric( $filesop22) ? 0 :  $filesop22,
+                                'company_commission' =>  !is_numeric( $filesop23) ? 0 :  $filesop23,
                                 'process_status' => 0,
                                 'upload_title' => $data['description'],
                                 'upload_batch' => $refno,

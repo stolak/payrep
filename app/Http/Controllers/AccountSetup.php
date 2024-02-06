@@ -865,12 +865,14 @@ class AccountSetup extends Controller {
         $postby=Auth::user()->id;
         $data['AccountTransType'] =DB::table('tbltranstype')->get();
         $data['JournalPending'] = AccountTrait::journalPending(0);
-        $crdr= DB::sELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
+        $data['SelectedJournalPending'] = AccountTrait::SelectedJournalPending($data['ref'], 0);
+        $data['UnpostedJournalPending'] = AccountTrait::UnpostedJournalPending_sef(0);
+        $request->session()->forget('ref');
+        $crdr= DB::SELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
         $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
         $data['crbal'] = ($crdr<0)? abs($crdr):'';
         $data['drbal'] = ($crdr>0)? abs($crdr):'';
-
-
+        // dd($data);
         return view('AccountSetup.pre-journaltransfer', $data);
 
     }
@@ -970,12 +972,11 @@ class AccountSetup extends Controller {
         // $data['SelectedJournalPending'] = $this->SelectedJournalPending($data['ref'],0);
         // $data['UnpostedJournalPending'] = $this->UnpostedJournalPending(0);
 
-        $data['AccountList'] = AccountChart::all();
-        $postby=Auth::user()->id;
+        $data['AccountList'] =AccountChart::all() ;
         $data['AccountTransType'] =DB::table('tbltranstype')->get();
-
-        $data['SelectedJournalPending'] = AccountTrait::journalPending(0);
-        $data['UnpostedJournalPending'] = AccountTrait::UnpostedJournalPending(0);
+        // $data['JournalPending'] = AccountTrait::journalPending(0);
+        $data['SelectedJournalPending'] = AccountTrait::SelectedJournalPending($data['ref'], 0);
+        $data['UnpostedJournalPending'] = AccountTrait::UnpostedJournalPending_sef(0);
 
         return view('AccountSetup.groupjournaltransfer', $data);
 

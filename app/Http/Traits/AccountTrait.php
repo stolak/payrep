@@ -146,12 +146,14 @@ trait AccountTrait
 
 	}
 
-    public function UnpostedJournalPending($status) {
+    public function UnpostedJournalPending_sef($status) {
         $userid = Auth::user()->id;
 
         return DB::select("
             SELECT
                 tbltemp_journal_transfer.ref,
+                tbltemp_journal_transfer.transdate,
+                tbltemp_journal_transfer.manual_ref,
                 SUM(tbltemp_journal_transfer.credit) AS t_val,
                 users.name
             FROM
@@ -162,9 +164,30 @@ trait AccountTrait
                 `batch_status` = '0' AND
                 tbltemp_journal_transfer.status = :status
             GROUP BY
-                tbltemp_journal_transfer.ref, users.name
+                tbltemp_journal_transfer.ref,
+                tbltemp_journal_transfer.transdate,
+                tbltemp_journal_transfer.manual_ref,
+                users.name
             ORDER BY
-                tbltemp_journal_transfer.transdate, tbltemp_journal_transfer.id
+                tbltemp_journal_transfer.transdate
         ", ['status' => $status]);
     }
+
+
+    public function SelectedJournalPending($ref, $status) {
+        return DB::select("
+            SELECT
+                *,
+                (SELECT CONCAT(`accountdescription`, '(', `accountno`, ')')
+                 FROM `account_charts`
+                 WHERE `account_charts`.`id` = `tbltemp_journal_transfer`.accountid) as account_details
+            FROM
+                `tbltemp_journal_transfer`
+            WHERE
+                `ref` = :ref
+                AND `batch_status` = :status",
+            ['ref' => $ref, 'status' => $status]
+        );
+    }
+
 }

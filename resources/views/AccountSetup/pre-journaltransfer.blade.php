@@ -225,7 +225,7 @@
                                         </table>
                                     </div>
                                     <br>
-                                    @if ($JournalPending)
+                                    @if ($SelectedJournalPending)
                                         <div class="table-responsive" style="font-size: 12px;">
                                             <table class="table table-bordered table-striped table-highlight">
                                                 <tr>
@@ -294,8 +294,6 @@
                                                         @endif
                                                     </td>
                                                 </tr>
-
-
                                             </table>
                                         </div>
                                     @else
@@ -664,6 +662,7 @@
             }
 
             function TransactionDetail(ref) {
+                alert(ref)
                 document.getElementById('refid').value = ref;
                 document.forms["transdetails"].submit();
 

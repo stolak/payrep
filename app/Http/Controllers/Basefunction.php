@@ -350,7 +350,7 @@ class Basefunction extends Controller
 
 	Public function AccountName($id) {
 	    $dt=$this->FetchAccountCodes($id);
-        
+
 	    if($dt) return $dt->accountdescription.'('.$dt->accountno.')';
 	    return '';
 	}
@@ -659,12 +659,36 @@ Public function RefBatch() {
 	Public function EOYList() {
 	    return DB::Select("SELECT * FROM `tblfinancial_end`   order by `year_end_date`");
 	}
-	Public function UnpostedJournalPending($status) {
+
+	Public function UnpostedJournalPendingOLD($status) { // by mr steve
 	    $userid=Auth::user()->id;
 	    return DB::Select("SELECT tbltemp_journal_transfer.*,sum(tbltemp_journal_transfer.credit) as t_val,users.name
 	    FROM `tbltemp_journal_transfer` left join users  on `users`.`id`=tbltemp_journal_transfer.postby WHERE  `batch_status`='0' and tbltemp_journal_transfer.status=1 group by ref
 	    order by tbltemp_journal_transfer.transdate,tbltemp_journal_transfer.id");
 	}
+
+    public function UnpostedJournalPending($status) {
+        $userid = Auth::user()->id;
+
+        return DB::select("
+            SELECT
+                tbltemp_journal_transfer.ref,
+                SUM(tbltemp_journal_transfer.credit) AS t_val,
+                users.name
+            FROM
+                `tbltemp_journal_transfer`
+            LEFT JOIN
+                users ON `users`.`id` = tbltemp_journal_transfer.postby
+            WHERE
+                `batch_status` = '0' AND
+                tbltemp_journal_transfer.status = :status
+            GROUP BY
+                tbltemp_journal_transfer.ref, users.name
+            ORDER BY
+                tbltemp_journal_transfer.transdate, tbltemp_journal_transfer.id
+        ", ['status' => $status]);
+    }
+    
 	Public function UnpostedJournalPending_sefOLD($status) {
 	    $userid=Auth::user()->id;
 	    return DB::Select("SELECT tbltemp_journal_transfer.*,sum(tbltemp_journal_transfer.credit) as t_val,users.name

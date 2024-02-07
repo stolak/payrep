@@ -13,7 +13,7 @@
 								<h3 class="page-title">Transaction upload</h3>
 								<ul class="breadcrumb">
 									<li class="breadcrumb-item"><a href="/">Home</a></li>
-									<li class="breadcrumb-item active">Transaction upload</li>
+									<li class="breadcrumb-item active">Agent upload</li>
 								</ul>
 							</div>
 						</div>
@@ -34,18 +34,7 @@
 										</div>
 										<div class="row">
 										
-										    <div class="col-md-2">
-											    <div class="form-group">
-													<label>Transaction Type </label>
-													
-													<select class="select2 form-control" name="status" id="status" onchange= 'Reload("mainform");'>
-														<option value="All" >--All--</option>
-														@foreach($transactionTypes as $list)
-														<option value="{{$list->code}}" {{$transactionType == (string) $list->code? 'selected':''}}>{{$list->status}} </option>
-														@endforeach
-													</select>
-												</div>
-											</div>
+										    
                                            
 											<div class="col-md-2">
 											    <div class="form-group">
@@ -77,7 +66,7 @@
 							<!-- List of economic code -->
 							<div class="card card-table">
 								<div class="card-header">
-									<h4 class="card-title">Record upload</h4>
+									<h4 class="card-title">Agent List</h4>
 								</div>
 								<div class="card-body">
 									<div class="table-responsive">
@@ -85,23 +74,11 @@
 											<thead>
 												<tr>
 													<th rowspan="1">S/N</th>													
-													<th rowspan="1">Date</th>
 													<th rowspan="1">Account Name</th>
 													<th rowspan="1">Account Number</th>
-													<th rowspan="1">Trans. Type</th>
-                                                    <th rowspan="1">Service Provider</th>
-                                                    <th rowspan="1">Bank</th>
-													<th rowspan="1">Beneficiaries</th>
-													<th rowspan="1">Debit </th>
-													<th rowspan="1">Credit</th>
-													<th rowspan="1">Fees</th>
-													<th rowspan="1">RRN</th>
-													<th rowspan="1">Bank Charges</th>
-													<th rowspan="1">Agent Commission</th>
-													<th rowspan="1">Bonus</th>
-													<th rowspan="1">Aggregator Commission</th>
-													<th rowspan="1">Aggregator Referral</th>
-													<th rowspan="1">Company Commission</th>
+													<th rowspan="1">Business Name</th>
+                                                    <th rowspan="1">Closing Balance</th>
+                                                   
 													<th rowspan="1">Action</th>
 												</tr>
 											</thead>
@@ -117,60 +94,25 @@
 														{{$sn++}}
 													</td>
 													<td >
-													{{$list->trans_date}}
+													{{$list->agent_name}}
 													</td>
 													<td >
-													{{$list->account_name}}
-													</td>
-													<td >
-													{{$list->account_number}}
-														
+													{{$list->account_ref}}
 													</td>
                                                     <td >
-													{{$list->transaction_type}}
+													{{$list->business_name}}
+													</td>
+													
+													<td style="text-align: right;">
+													{{number_format($list->opening_bal,2, '.', ',')}}
+													
 													</td>
 													<td >
-													{{$list->service_provider}}	
-													</td>
-													<td >
-													{{$list->bank}}
-													</td>
-													
-                                                    <td>
-													{{$list->beneficiaryname}}
-													</td>
-													<td style="text-align: right;">
-													{{number_format($list->debit,2, '.', ',')}}
-													
-													</td>
-													<td style="text-align: right;">
-													{{number_format($list->credit,2, '.', ',')}}  
-													</td>
-													<td style="text-align: right;">
-													{{number_format($list->fees,2, '.', ',')}}	
+													{{$list->as_at}}
 													</td>
 													
 													<td style="text-align: right;">
-													{{$list->rrn}}
-													</td>
-													<td>
-													{{number_format($list->bank_charges,2, '.', ',')}}	
-													</td>
-													<td style="text-align: right;">
-													{{number_format($list->agent_commission,2, '.', ',')}}  
-													</td>
-													<td style="text-align: right;">
-													{{number_format($list->bonus,2, '.', ',')}}	
-													</td>
-													
-													<td style="text-align: right;">
-													{{number_format($list->aggregator_commission,2, '.', ',')}}
-													</td>
-													<td>
-													{{number_format($list->aggregator_referral,2, '.', ',')}}	
-													</td>
-													<td style="text-align: right;">
-													{{number_format($list->company_commission,2, '.', ',')}}  
+												
 													</td>
 												</tr>
 												@endforeach
@@ -213,7 +155,7 @@
 				<div class="modal-dialog modal-dialog-centered" role="document" >
 					<div class="modal-content">
 						<div class="modal-header">
-							<h5 class="modal-title">Attachment</h5>
+							<h5 class="modal-title">Agent Upload</h5>
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 								<span aria-hidden="true">&times;</span>
 							</button>
@@ -223,14 +165,7 @@
                                     {{ csrf_field() }}
 							    
 								
-								<div class="row ">
-									<div class="col-12 col-sm-12">
-										<div class="form-group">
-											<label>File Description</label>
-											<input type="text" class="form-control"  name="description" >
-										</div>
-									</div>
-							    </div>
+								
 								
 								<div class="row ">
 									<div class="col-12 col-sm-12">
@@ -240,8 +175,7 @@
 										</div>
 									</div>
 							    </div>
-								<input type="hidden" name="loan" value="{{$Loan['id']??0}}" >
-								<input type="hidden" name="id" value="{{$Loan['id']??0}}" >
+								
 								<button type="submit" class="btn btn-primary" name="upload">Continue</button>
 							</form>
 						</div>

@@ -6,10 +6,12 @@ use App\Http\Controllers\RepaymentLogController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountJournalController;
+use App\Http\Controllers\AccountReport;
 use App\Http\Controllers\AccountSetup;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomedTransactionController;
+use App\Http\Controllers\PDFReport;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
@@ -71,11 +73,15 @@ Route::middleware('auth')->group(function () {
 
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Route::any('/pre-journal-post', [AccountSetup::class, 'PreJournalPost']);
-        Route::any('custom/upload',      [CustomedTransactionController::class, 'upload']);
+        Route::any('/pre-journal-post',     [AccountSetup::class, 'PreJournalPost']);
+        Route::any('custom/upload',         [CustomedTransactionController::class, 'upload']);
 
-        Route::any('agent/upload',      [CustomedTransactionController::class, 'agentupload']);
+        Route::any('agent/upload',          [CustomedTransactionController::class, 'agentupload']);
 
-        Route::any('/group-journal-post',      	[AccountSetup::class, 'Journal_Final_post']);
+        Route::any('/group-journal-post',   [AccountSetup::class, 'Journal_Final_post']);
+
+        Route::any('/account-statement',    [AccountReport::class, 'AccountStatements']);
+        Route::any('/account-statement-pdf',  [PDFReport::class, 'AccountStatements']);
+        Route::any('/petty-cash',                  [AccountSetup::class, 'PettyCashHandling']);
 
 });

@@ -474,67 +474,7 @@ class AccountSetup extends Controller {
 
     }
 
-    public function PettyCashHandling(Request $request) {
-        //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
-        //$data['id']=$request->input('id');
-        $data['manual_ref']=$request->input('manual_ref');
-        $data['particular']=$request->input('particular');
-        $data['amount']=$request->input('amount');
-        $data['remark']=$request->input('remark');
-        $data['transdate']=$request->input('transdate');
-        if ( isset( $_POST['post'] ) ) {
-                $data['particular_accountid']=DB::table('tblproject_expense')->where('id', '=', $data['particular'])->value('expensenid');
-                $data['petty_accountid']=DB::table('tblDefault_setup')->where('id', '=', 1)->value('accoountId');
-                $request['petty_accountid']=$data['petty_accountid'];
-                $request['particular_accountid']=$data['particular_accountid'];
-                $this->validate($request, [
-                    'particular_accountid'      => 'required',
-                    'petty_accountid'      => 'required',
-                    'amount'      => 'required|numeric|between:0,9999999999999999.99',
-                    'remark'      => 'required',
-                    'manual_ref'      => 'required|string|unique:tblaccount_transaction,manual_ref',
-                ],
-                []
-                ,
-                [
-                    'particular_accountid'=>'Particular Project',
-                    'manual_ref'=>'Reference Number',
-                ]);
-                $refno=$this->RefNo();
-                $userid=Auth::user()->id;
-                $this->DebitAccount($data['particular_accountid'],$data['amount'],$refno,$data['transdate'] !== null ? $data['transdate'] : date("Y-m-d"),$data['remark'],$userid,$data['manual_ref']);
-                $this->CreditAccount($data['petty_accountid'],$data['amount'],$refno, $data['transdate'] !== null ? $data['transdate'] : date("Y-m-d"), $data['remark'],$userid,$data['manual_ref']);
-                DB::table('tblpettyhandling_transaction')->insert([
-                    'projectid' => $data['particular'],
-                    'accountid' => $data['particular_accountid'] ,
-                    'amount' => $data['amount'] ,
-                    'remark' => $data['remark'] ,
-                    'transdate' =>  $data['transdate'] !== null ? $data['transdate'] : date("Y-m-d"),
-                    'postby' => Auth::user()->id ,
-                    'ref' => $refno ,
-                    'manual_ref' => $data['manual_ref'] ,
-                    'petty_accountid' => $data['petty_accountid'] ,
 
-                    ]);
-                    return back()->with('message','New record successfully added.'  );
-                    //return back()->withInput();
-            }
-            if ( isset( $_POST['update'] ) ) {
-                $this->validate($request, [
-                'particular'  => 'required|string',
-                'expensenid'      => 'required|string',
-                ]);
-
-                DB::table('tblproject_expense')->where('id',$data['id'])->update([
-                    'particular' => $data['particular'] ,
-                    'expensenid' => $data['accountid'] ,
-                    ]);
-                    return back()->with('message','record successfully updated.'  );
-            }
-        $data['ProjectAccount'] = $this->ProjectAccount();
-        $data['PettyTransaction'] = $this->PettyTransaction();
-        return view('AccountSetup.pettycash', $data);
-    }
 
 
     public function JournalPost(Request $request) {
@@ -839,11 +779,11 @@ class AccountSetup extends Controller {
                 'remarks' => $data['remarks'] ,
                 'postby' => Auth::user()->id ,
             ]);
-            
+
             return back()->with('message','record successfully updated.'  );
         }
 
-        $data['AccountList'] =AccountChart::all() ;
+        $data['AccountList'] =AccountChart::all();
         $data['AccountTransType'] =DB::table('tbltranstype')->get();
         $data['JournalPending'] = AccountTrait::journalPending(0);
         $data['SelectedJournalPending'] = AccountTrait::SelectedJournalPending($data['ref'], 0);
@@ -964,6 +904,75 @@ class AccountSetup extends Controller {
 
         return view('AccountSetup.groupjournaltransfer', $data);
 
+    }
+
+
+    public function PettyCashHandling(Request $request) {
+
+        $data['manual_ref']=$request->input('manual_ref');
+        $data['particular']=$request->input('particular');
+        $data['amount']=$request->input('amount');
+        $data['remark']=$request->input('remark');
+        $data['transdate']=$request->input('transdate');
+
+        if ( isset( $_POST['post'] ) ) {
+
+                $data['particular_accountid']=DB::table('tblproject_expense')->where('id', '=', $data['particular'])->value('expensenid');
+                $data['petty_accountid']=DB::table('tblDefault_setup')->where('id', '=', 1)->value('accoountId');
+
+                $request['petty_accountid']=$data['petty_accountid'];
+                $request['particular_accountid']=$data['particular_accountid'];
+
+                $this->validate($request, [
+                    'particular_accountid'      => 'required',
+                    'petty_accountid'      => 'required',
+                    'amount'      => 'required|numeric|between:0,9999999999999999.99',
+                    'remark'      => 'required',
+                    'manual_ref'      => 'required|string|unique:tblaccount_transaction,manual_ref',
+                ],
+                []
+                ,
+                [
+                    'particular_accountid'=>'Particular Project',
+                    'manual_ref'=>'Reference Number',
+                ]);
+
+                $refno= AccountTrait::RefNo();
+                $userid=Auth::user()->id;
+
+                AccountTrait::DebitAccount($data['particular_accountid'],$data['amount'],$refno,$data['transdate'] !== null ? $data['transdate'] : date("Y-m-d"),$data['remark'],$userid,$data['manual_ref']);
+                AccountTrait::CreditAccount($data['petty_accountid'],$data['amount'],$refno, $data['transdate'] !== null ? $data['transdate'] : date("Y-m-d"), $data['remark'],$userid,$data['manual_ref']);
+
+                DB::table('tblpettyhandling_transaction')->insert([
+                    'projectid' => $data['particular'],
+                    'accountid' => $data['particular_accountid'] ,
+                    'amount' => $data['amount'] ,
+                    'remark' => $data['remark'] ,
+                    'transdate' =>  $data['transdate'] !== null ? $data['transdate'] : date("Y-m-d"),
+                    'postby' => Auth::user()->id ,
+                    'ref' => $refno ,
+                    'manual_ref' => $data['manual_ref'] ,
+                    'petty_accountid' => $data['petty_accountid'] ,
+                ]);
+
+                return back()->with('message','New record successfully added.'  );
+                    //return back()->withInput();
+            }
+            if ( isset( $_POST['update'] ) ) {
+                $this->validate($request, [
+                'particular'  => 'required|string',
+                'expensenid'      => 'required|string',
+                ]);
+
+                DB::table('tblproject_expense')->where('id',$data['id'])->update([
+                    'particular' => $data['particular'] ,
+                    'expensenid' => $data['accountid'] ,
+                    ]);
+                    return back()->with('message','record successfully updated.'  );
+            }
+            $data['ProjectAccount'] = AccountTrait::ProjectAccount();
+            $data['PettyTransaction'] = AccountTrait::PettyTransaction();
+            return view('AccountSetup.pettycash', $data);
     }
 
 }

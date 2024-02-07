@@ -2082,13 +2082,13 @@ CREATE TABLE IF NOT EXISTS `agents` (
   `agent_name` varchar(200) NOT NULL,
   `account_ref` varchar(100) NOT NULL,
   `account_id` int NOT NULL DEFAULT '0',
-  `business_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `business_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `status` tinyint NOT NULL DEFAULT '1',
   `opening_bal` double NOT NULL DEFAULT '0',
   `as_at` varchar(100) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `id` (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `agents`
@@ -2328,7 +2328,7 @@ CREATE TABLE IF NOT EXISTS `automated_record` (
   `transaction_type_id` int DEFAULT NULL,
   `account_id` int DEFAULT NULL,
   UNIQUE KEY `id` (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=91 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=91 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `automated_record`
@@ -4230,7 +4230,7 @@ CREATE TABLE IF NOT EXISTS `product_types` (
   `account_id` int DEFAULT NULL,
   `status` tinyint NOT NULL DEFAULT '1',
   UNIQUE KEY `id` (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `product_types`
@@ -4267,7 +4267,7 @@ CREATE TABLE IF NOT EXISTS `product_types_text` (
   `product_type_id` int NOT NULL,
   `status` int NOT NULL DEFAULT '1',
   UNIQUE KEY `id` (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `product_types_text`

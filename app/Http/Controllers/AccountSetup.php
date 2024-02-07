@@ -917,18 +917,18 @@ class AccountSetup extends Controller {
 
         if ( isset( $_POST['post'] ) ) {
 
-                $data['particular_accountid']=DB::table('tblproject_expense')->where('id', '=', $data['particular'])->value('expensenid');
-                $data['petty_accountid']=DB::table('tblDefault_setup')->where('id', '=', 1)->value('accoountId');
+                $data['particular_accountid']=DB::table('project_expenses')->where('id', '=', $data['particular'])->value('expensenid');
+                $data['petty_accountid']=DB::table('default_setups')->where('id', '=', 1)->value('accoountId');
 
-                $request['petty_accountid']=$data['petty_accountid'];
-                $request['particular_accountid']=$data['particular_accountid'];
+                $request['petty_accountid']= $data['petty_accountid'];
+                $request['particular_accountid']= $data['particular_accountid'];
 
                 $this->validate($request, [
                     'particular_accountid'      => 'required',
                     'petty_accountid'      => 'required',
                     'amount'      => 'required|numeric|between:0,9999999999999999.99',
                     'remark'      => 'required',
-                    'manual_ref'      => 'required|string|unique:tblaccount_transaction,manual_ref',
+                    'manual_ref'      => 'required|string|unique:account_transactions,manual_ref',
                 ],
                 []
                 ,
@@ -943,7 +943,7 @@ class AccountSetup extends Controller {
                 AccountTrait::DebitAccount($data['particular_accountid'],$data['amount'],$refno,$data['transdate'] !== null ? $data['transdate'] : date("Y-m-d"),$data['remark'],$userid,$data['manual_ref']);
                 AccountTrait::CreditAccount($data['petty_accountid'],$data['amount'],$refno, $data['transdate'] !== null ? $data['transdate'] : date("Y-m-d"), $data['remark'],$userid,$data['manual_ref']);
 
-                DB::table('tblpettyhandling_transaction')->insert([
+                DB::table('pettyhandling_transactions')->insert([
                     'projectid' => $data['particular'],
                     'accountid' => $data['particular_accountid'] ,
                     'amount' => $data['amount'] ,
@@ -964,7 +964,7 @@ class AccountSetup extends Controller {
                 'expensenid'      => 'required|string',
                 ]);
 
-                DB::table('tblproject_expense')->where('id',$data['id'])->update([
+                DB::table('project_expenses')->where('id',$data['id'])->update([
                     'particular' => $data['particular'] ,
                     'expensenid' => $data['accountid'] ,
                     ]);

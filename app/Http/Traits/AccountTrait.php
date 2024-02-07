@@ -217,4 +217,45 @@ trait AccountTrait
 
     }
 
+    public static function ProjectAccount() {
+        return DB::select(DB::raw(
+            "SELECT
+                *,
+                (SELECT CONCAT(accountdescription, '(', accountno, ')') FROM account_charts WHERE account_charts.id = expensenid) as AccountName
+            FROM
+                project_expenses"
+        ));
+    }
+
+
+    public function PettyTransaction($petty = '', $br = '') {
+        $qPetty = 1;
+        if (!empty($petty)) {
+            $qPetty = "`pettyhandling_transactions`.`projectid`='$petty'";
+        }
+
+        $qBranch = 1;
+        if (!empty($br)) {
+            $qBranch = "`pettyhandling_transactions`.`branch_id`='$br'";
+        }
+
+        return DB::select(DB::raw(
+            "SELECT
+                pettyhandling_transactions.*,
+                (SELECT CONCAT(accountdescription, '(', accountno, ')') FROM account_charts WHERE account_charts.id = accountid) as AccountName,
+                (SELECT particular FROM project_expenses WHERE project_expenses.id = projectid) as Particular,
+                (SELECT name FROM users WHERE users.id = postby) as Postedby,
+                branches.branch as Branch,
+                users.name as FPost
+            FROM
+                pettyhandling_transactions
+            LEFT JOIN
+                branches ON pettyhandling_transactions.branch_id = branches.id
+            LEFT JOIN
+                users ON users.id = pettyhandling_transactions.final_post_by
+            WHERE
+                $qBranch AND $qPetty"
+        ));
+    }
+
 }

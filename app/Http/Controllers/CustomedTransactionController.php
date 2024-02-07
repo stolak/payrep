@@ -7,6 +7,7 @@ use App\Http\Traits\AccountTrait;
 use App\Http\Traits\AutomatedUploadTrait;
 use App\Models\LoanStatus;
 use DB;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\URL;
@@ -47,7 +48,12 @@ class CustomedTransactionController extends Controller
                 'description' => 'required|string|unique:automated_record,upload_title',
             ]);
             $refno = AccountTrait::RefNo();
+            $transactionDetails = DB::table('product_types_text')
+            ->leftJoin('product_types','product_types.id','product_types_text.product_type_id')
+            ->select('product_types_text.description','product_types.id','product_types.account_id')
+            ->get()->toArray();
 
+            // dd($transactionDetails);
             $mimes = array('application/vnd.ms-excel', 'text/csv', 'text/tsv');
             $file = $_FILES['file']['tmp_name'];
             if (($file == "") || !(in_array($_FILES['file']['type'], $mimes))) {
@@ -58,20 +64,25 @@ class CustomedTransactionController extends Controller
                 $c = 0;
 
                 while (($filesop = fgetcsv($handle, 1000, ",")) !== false) {
-                    // dd($filesop);
+                  
                     $dateval = $filesop[0];
                     $accountvalue = $filesop[3];
 
                     if ($c == 0 || $dateval == "" || $accountvalue == "") {
                         $c = 1;
-                        array_push($statues, $filesop[16]);
+                     
 
                     } else {
 
                         if (($filesop[16] == 'successful')) {
+                            $searchText= $filesop[6];
+                            $matchingObjects = array_filter($transactionDetails, function($obj) use ($searchText) {
+                                return $obj->description === $searchText;
+                            });
 
+                            // dd($matchingObjects, $searchText );
                             // $transdate = $this->UpdatetransactionDate($filesop[0]);
-                            $transdate = $filesop[0];
+
                             $filesop10 = preg_replace('/[^\d.]/', '', $filesop[10]);
                             $filesop11 = preg_replace('/[^\d.]/', '', $filesop[11]);
                             $filesop12 = preg_replace('/[^\d.]/', '', $filesop[12]);
@@ -86,7 +97,6 @@ class CustomedTransactionController extends Controller
                             $filesop22 = preg_replace('/[^\d.]/', '', $filesop[22]);
 
                             $filesop23 = preg_replace('/[^\d.]/', '', $filesop[23]);
-
                             DB::table('automated_record')->insert([
                                 'trans_date' => $filesop[0],
                                 'serial_number' => $filesop[1], // $transdate,
@@ -115,6 +125,8 @@ class CustomedTransactionController extends Controller
                                 'process_status' => 0,
                                 'upload_title' => $data['description'],
                                 'upload_batch' => $refno,
+                                'transaction_type_id' =>reset($matchingObjects)->id??0,
+                                'account_id' =>reset($matchingObjects)->account_id??0,
 
                             ]);
                         }
@@ -151,6 +163,8 @@ class CustomedTransactionController extends Controller
         if (isset($_POST['upload'])) {
 
             $refno = AccountTrait::RefNo();
+            $transactionDetails=DB::table('product_types_text')->get();
+            dd($transactionDetails);
 
             $mimes = array('application/vnd.ms-excel', 'text/csv', 'text/tsv');
             $file = $_FILES['file']['tmp_name'];
@@ -170,19 +184,57 @@ class CustomedTransactionController extends Controller
 
                     } else {
 
-                      
+                        $filesop4 = preg_replace('/[^\d.]/', '', $filesop[4]);
 
-                            $filesop4 = preg_replace('/[^\d.]/', '', $filesop[4]);
+                        $id = DB::table('agents')->insertGetId([
+                            'agent_name' => $filesop[1],
+                            'account_ref' => $filesop[2],
+                            'business_name' => $filesop[3],
+                            'opening_bal' => !is_numeric($filesop4) ? 0 : $filesop4,
+                            'as_at' => $filesop[5],
 
-                            DB::table('agents')->insert([
-                                'agent_name' => $filesop[1],
-                                'account_ref' => $filesop[2],
-                                'business_name' => $filesop[3],
-                                'opening_bal' => !is_numeric($filesop4) ? 0 : $filesop4,
-                                'as_at' => $filesop[5],
+                        ]);
 
+                        $subheadid = DB::table('setup_subheads')->where('id', 1)->value('subhead_id');
+                        $subhead = AccountTrait::getSubheadDetails($subheadid);
+                        if ($subhead) {
+                            $account = DB::table('account_charts')->insertGetId([
+                                'groupid' => $subhead->groupid,
+                                'headid' => $subhead->headid,
+                                'subheadid' => $subheadid,
+                                'accountno' => $filesop[2],
+                                'accountdescription' => $filesop[1],
+                                'status' => 1,
+                                'rank' => 0,
                             ]);
-                        
+                            DB::table('agents')->where('id', $id)->update([
+                                'account_id' => $account,
+                            ]);
+
+                            $ref = AccountTrait::RefNo();
+                            $accountPayable=1;
+                            AccountTrait::debitAccount(
+                                $accountPayable,
+                                !is_numeric($filesop4) ? 0 : $filesop4,
+                                $ref,
+                                date('Y-m-d'),
+                                $filesop[1]. 'Opening Balance' ,
+                                Auth::User()->id,
+                                $ref
+                            );
+
+                           
+                            AccountTrait::creditAccount(
+                                $account,
+                                !is_numeric($filesop4) ? 0 : $filesop4,
+                                $ref, 
+                                date('Y-m-d'),
+                                $filesop[1]. 'Opening Balance' ,
+                                Auth::User()->id,
+                                $ref);
+                            ;
+                        }
+
                     }
                 }
             }
@@ -190,8 +242,6 @@ class CustomedTransactionController extends Controller
         }
 
         $data['records'] = AutomatedUploadTrait::agentsList();
-
-        
 
         return view('customedTransaction.agentUpload', $data);
     }

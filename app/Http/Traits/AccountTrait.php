@@ -62,6 +62,7 @@ trait AccountTrait
 		->select('tbltemp_journal_transfer.*','account_charts.accountdescription')->get();
 	}
 
+
 	public static function RefNo() {
         $alphabet = "0123456789";
         $pass = array();
@@ -148,7 +149,6 @@ trait AccountTrait
 
     public function UnpostedJournalPending_sef($status) {
         $userid = Auth::user()->id;
-
         return DB::select("
             SELECT
                 tbltemp_journal_transfer.ref,
@@ -161,16 +161,16 @@ trait AccountTrait
             LEFT JOIN
                 users ON `users`.`id` = tbltemp_journal_transfer.postby
             WHERE
-                `batch_status` = '0' AND
-                tbltemp_journal_transfer.status = :status
+                `batch_status` = '0' AND `postby` = '$userid'
             GROUP BY
                 tbltemp_journal_transfer.ref,
                 tbltemp_journal_transfer.transdate,
                 tbltemp_journal_transfer.manual_ref,
                 users.name
             ORDER BY
-                tbltemp_journal_transfer.transdate
-        ", ['status' => $status]);
+                tbltemp_journal_transfer.transdate,
+                tbltemp_journal_transfer.id
+        ");
     }
 
 
@@ -180,7 +180,7 @@ trait AccountTrait
                 *,
                 (SELECT CONCAT(`accountdescription`, '(', `accountno`, ')')
                  FROM `account_charts`
-                 WHERE `account_charts`.`id` = `tbltemp_journal_transfer`.accountid) as account_details
+                 WHERE `account_charts`.`id` = `tbltemp_journal_transfer`.accountid) as accountdescription
             FROM
                 `tbltemp_journal_transfer`
             WHERE
@@ -189,5 +189,6 @@ trait AccountTrait
             ['ref' => $ref, 'status' => $status]
         );
     }
+
 
 }

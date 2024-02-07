@@ -240,7 +240,7 @@
                                                     $totaldebit = 0;
                                                     $totalcredit = 0;
                                                 @endphp
-                                                @foreach ($JournalPending as $data)
+                                                @foreach ($SelectedJournalPending as $data)
                                                     @php
                                                         $totaldebit += $data->debit;
                                                         $totalcredit += $data->credit;
@@ -251,11 +251,11 @@
                                                         <td><input type="text" class="form-control"
                                                                 value="{{ $data->accountdescription }}" readonly></td>
                                                         <td><input type="text" class="form-control"
-                                                                value="{{ number_format($data->debit, 2, '.', ',') }}"
-                                                                readonly style="text-align: right; "></td>
+                                                                value="{{ number_format($data->debit, 2, '.', ',') }}" readonly
+                                                                style="text-align: right; "></td>
                                                         <td><input type="text" class="form-control"
-                                                                value="{{ number_format($data->credit, 2, '.', ',') }}"
-                                                                readonly style="text-align: right; "></td>
+                                                                value="{{ number_format($data->credit, 2, '.', ',') }}" readonly
+                                                                style="text-align: right; "></td>
                                                         <td><input type="text" class="form-control"
                                                                 value="{{ $data->remarks }}" readonly></td>
                                                         <td>
@@ -274,8 +274,8 @@
                                                             value="{{ number_format($totaldebit, 2, '.', ',') }}" readonly
                                                             style="text-align: right; "></td>
                                                     <td><input type="text" class="form-control"
-                                                            value="{{ number_format($totalcredit, 2, '.', ',') }}"
-                                                            readonly style="text-align: right; "></td>
+                                                            value="{{ number_format($totalcredit, 2, '.', ',') }}" readonly
+                                                            style="text-align: right; "></td>
                                                     <td>
                                                         @if (number_format($totalcredit, 2, '.', ',') == number_format($totaldebit, 2, '.', ',') && $totaldebit > 0)
                                                             <b>Ref No:</b>{{ $data->manual_ref }}
@@ -294,6 +294,8 @@
                                                         @endif
                                                     </td>
                                                 </tr>
+
+
                                             </table>
                                         </div>
                                     @else
@@ -662,7 +664,6 @@
             }
 
             function TransactionDetail(ref) {
-                alert(ref)
                 document.getElementById('refid').value = ref;
                 document.forms["transdetails"].submit();
 

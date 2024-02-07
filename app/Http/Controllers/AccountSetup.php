@@ -702,9 +702,8 @@ class AccountSetup extends Controller {
     public function PreJournalPost(Request $request) {
         //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
 
-        if(!(URL::previous()==URL::current()))
+        if(!(URL::previous()==URL::current()))$request->session()->forget('ref');
 
-        $request->session()->forget('ref');
 
         $data['ref']=$request->input('ref');
 
@@ -781,24 +780,21 @@ class AccountSetup extends Controller {
             'transdate'=>'Transaction Date',
             ]);
 
-            // $data['JournalPending'] =$this->JournalPending(0);
-            // $data['JournalPending'] = AccountTrait::journalPending(0);
-            // $refno=$this->RefNo();
-
+            $data['JournalPending'] = AccountTrait::journalPending(0);
             $refno = AccountTrait::RefNo(0);
             $userid=Auth::user()->id;
 
             DB::table('tbltemp_journal_transfer')->where('postby',Auth::user()->id)->where('status',0)->update([
                 'status' => 1 ,
                 'ref' => $refno ,
-                'manual_ref' => $data['manual_ref'] ,
+                'manual_ref' => $data['manual_ref'],
                 'transdate' => $data['transdate'],
+                'post_at' => Carbon::now()->format('Y-m-d'),
                 ]);
-                return back()->with('message','record successfully updated.'  );
+                return back()->with('message','record successfully posted.'  );
         }
 
         if ( isset( $_POST['reverse'] ) ) {
-            //dd($request->input('ref'));
 
             DB::table('tbltemp_journal_transfer')->where('postby',Auth::user()->id)->where('ref',$request->input('ref'))->update([
                 'status' => 0 ,
@@ -811,7 +807,6 @@ class AccountSetup extends Controller {
 
         $del=$request->input('delid');
         $ref=$request->input('delref');
-        //dd($request->input('ref').$request->input('ref'));;
         if(DB::delete("DELETE FROM `tbltemp_journal_transfer` WHERE `id`='$del'")) return back()->with('message','record successfully deleted!'  );
         if(DB::delete("DELETE FROM `tbltemp_journal_transfer` WHERE `ref`='$ref' and `status`=1")) return back()->with('message','record successfully deleted!'  );
 
@@ -844,37 +839,24 @@ class AccountSetup extends Controller {
                 'remarks' => $data['remarks'] ,
                 'postby' => Auth::user()->id ,
             ]);
+            
             return back()->with('message','record successfully updated.'  );
         }
 
-        // $data['AccountList'] = $this->AccountList('','');
-        // $data['AccountTransType'] = $this->AccountTransType();
-        // $data['JournalPending'] = $this->JournalPending(0);
-        // //dd($data['ref']);
-        // $data['SelectedJournalPending'] = $this->SelectedJournalPending($data['ref'],0);
-        // $data['UnpostedJournalPending'] = $this->UnpostedJournalPending_sef(0);
-        // $request->session()->forget('ref');
-
-        // $postby= Auth::user()->id;
-        // $crdr= DB::sELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
-        // $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
-        // $data['crbal'] = ($crdr<0)? abs($crdr):'';
-        // $data['drbal'] = ($crdr>0)? abs($crdr):'';
-
         $data['AccountList'] =AccountChart::all() ;
-        $postby=Auth::user()->id;
         $data['AccountTransType'] =DB::table('tbltranstype')->get();
         $data['JournalPending'] = AccountTrait::journalPending(0);
         $data['SelectedJournalPending'] = AccountTrait::SelectedJournalPending($data['ref'], 0);
         $data['UnpostedJournalPending'] = AccountTrait::UnpostedJournalPending_sef(0);
         $request->session()->forget('ref');
+
+        $postby=Auth::user()->id;
         $crdr= DB::SELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
         $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
         $data['crbal'] = ($crdr<0)? abs($crdr):'';
         $data['drbal'] = ($crdr>0)? abs($crdr):'';
-        // dd($data);
-        return view('AccountSetup.pre-journaltransfer', $data);
 
+        return view('AccountSetup.pre-journaltransfer', $data);
     }
 
 
@@ -903,28 +885,30 @@ class AccountSetup extends Controller {
             ]);
 
             if(DB::table('tbltemp_journal_transfer')->where('ref','<>',$data['ref'])->where('manual_ref',$data['manual_ref'])->first())return back()->with('error_message',$data['manual_ref'].' already exist with another record.'  );
-            //die('waiting');
-            $data['transdate']  = date("Y-m-d");
+            //die('waiting'); Carbon::now()
+            $data['f_post_at']  = Carbon::now()->format('Y-m-d');
             $refno              = $data['ref'];
             $userid             = Auth::user()->id;
 
             if(DB::table('tbltemp_journal_transfer')->where('ref',$data['ref'])->update([
                 'batch_status' => 1 ,
-                'f_post_at' => $data['transdate'],
+                'f_post_at' => $data['f_post_at'],
                 'final_post_by' => $userid,
                 'manual_ref' => $data['manual_ref'],
                 'transdate' => $data['ini_transdate'],
-                ]))$data['JournalPending'] =DB::table('tbltemp_journal_transfer')->where('ref',$data['ref'])->get();
+                ]))
+
+                $data['JournalPending'] =DB::table('tbltemp_journal_transfer')->where('ref',$data['ref'])->get();
 
                 foreach ($data['JournalPending'] as $b){
-                if($b->debit!=0){
-                    $this->DebitAccount($b->accountid, $b->debit,$refno,$b->transdate,$b->remarks,$userid,$b->manual_ref);
+                    if($b->debit!=0){
+                        AccountTrait::DebitAccount($b->accountid, $b->debit,$refno,$b->transdate,$b->remarks,$userid,$b->manual_ref);
+                    }
+                    if($b->credit!=0){
+                        AccountTrait::CreditAccount($b->accountid, $b->credit,$refno,$b->transdate,$b->remarks,$userid, $b->manual_ref);
+                    }
                 }
-                if($b->credit!=0){
-                    $this->CreditAccount($b->accountid, $b->credit,$refno,$b->transdate,$b->remarks,$userid, $b->manual_ref);
-                }
-                }
-                return back()->with('message','record successfully updated.'  );
+                return back()->with('message','Record successfully posted.'  );
         }
 
 

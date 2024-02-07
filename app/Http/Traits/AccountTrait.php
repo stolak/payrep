@@ -25,6 +25,7 @@ trait AccountTrait
             'postby' => $userid ,
         ]);
 	}
+
     public static  function creditAccount($accountid, $amount, $ref, $transdate, $remark, $userid, $manual_ref)
     {
 	    $accountdetails=AccountTrait::getAccountDetails($accountid);
@@ -44,6 +45,7 @@ trait AccountTrait
 
     	        ]);
 	}
+
     public static function getAccountDetails($id)
     {
 	    return DB::table('account_charts')->where('id', '=', $id)->first();
@@ -147,7 +149,7 @@ trait AccountTrait
 
 	}
 
-    public function UnpostedJournalPending_sef($status) {
+    public static function UnpostedJournalPending_sef($status) {
         $userid = Auth::user()->id;
         return DB::select("
             SELECT
@@ -174,7 +176,7 @@ trait AccountTrait
     }
 
 
-    public function SelectedJournalPending($ref, $status) {
+    public static function SelectedJournalPending($ref, $status) {
         return DB::select("
             SELECT
                 *,
@@ -190,5 +192,70 @@ trait AccountTrait
         );
     }
 
+    public static function FetchAccountCodes($id) {
+        return DB::table('account_charts')->where('id', '=', $id)->first();
+    }
+
+    public static function AccountName($id) {
+        $dt = self::FetchAccountCodes($id);
+
+        if ($dt) {
+            return $dt->accountdescription . '(' . $dt->accountno . ')';
+        }
+
+        return '';
+    }
+
+    Public static function AccountStatementRunningTotal($account,$fromdate,$todate) {
+        $opening="0";
+        $result = DB::Select("SELECT Sum(`credit`-`debit`) as Opening FROM `account_transactions` WHERE DATE_FORMAT(`transdate`,'%Y-%m-%d')<'$fromdate' and `accountid`='$account'");
+        if($result){$opening=$result[0]->Opening;}
+
+        $timedate= "(DATE_FORMAT(`transdate`,'%Y-%m-%d') BETWEEN '$fromdate' AND '$todate')";
+         $result1 = " SELECT *, (@csum) as prev, `debit`,`credit`, (@csum := @csum +`credit`-`debit`) as `current`  FROM `account_transactions` JOIN (SELECT @csum := '$opening') r WHERE  $timedate and `accountid`='$account' order by DATE_FORMAT(`transdate`,'%Y-%m-%d') ,`id`";
+        return DB::Select($result1);
+
+    }
+
+    public static function ProjectAccount() {
+        return DB::select(DB::raw(
+            "SELECT
+                *,
+                (SELECT CONCAT(accountdescription, '(', accountno, ')') FROM account_charts WHERE account_charts.id = expensenid) as AccountName
+            FROM
+                project_expenses"
+        ));
+    }
+
+
+    public function PettyTransaction($petty = '', $br = '') {
+        $qPetty = 1;
+        if (!empty($petty)) {
+            $qPetty = "`pettyhandling_transactions`.`projectid`='$petty'";
+        }
+
+        $qBranch = 1;
+        if (!empty($br)) {
+            $qBranch = "`pettyhandling_transactions`.`branch_id`='$br'";
+        }
+
+        return DB::select(DB::raw(
+            "SELECT
+                pettyhandling_transactions.*,
+                (SELECT CONCAT(accountdescription, '(', accountno, ')') FROM account_charts WHERE account_charts.id = accountid) as AccountName,
+                (SELECT particular FROM project_expenses WHERE project_expenses.id = projectid) as Particular,
+                (SELECT name FROM users WHERE users.id = postby) as Postedby,
+                branches.branch as Branch,
+                users.name as FPost
+            FROM
+                pettyhandling_transactions
+            LEFT JOIN
+                branches ON pettyhandling_transactions.branch_id = branches.id
+            LEFT JOIN
+                users ON users.id = pettyhandling_transactions.final_post_by
+            WHERE
+                $qBranch AND $qPetty"
+        ));
+    }
 
 }

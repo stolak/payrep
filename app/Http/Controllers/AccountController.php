@@ -25,7 +25,7 @@ class AccountController extends Controller
     public function subaccount(Request $request)
     {
         //dd("jsjsjs");
-       
+
     if(!(URL::previous()==URL::current() )){
         $request->session()->forget('category');
         $request->session()->forget('economiccode');
@@ -33,7 +33,7 @@ class AccountController extends Controller
     }
     $data['accountHead'] = SessionTrait::validate($request, 'accountHead');
     $data['subaccount'] = SessionTrait::validate($request, 'subaccount');
-    
+
     if (isset ($_POST['addnew'])) {
         $this->validate($request, [
             'subaccount'          => 'required',
@@ -50,9 +50,9 @@ class AccountController extends Controller
         'subhead' => $request->input('subaccount'),
         'status' => 1,
         'rank' => 0,
-        
+
     ]);
-   
+
     SessionTrait::forget($request, [
         'accountHead',
         'subaccount',
@@ -75,7 +75,7 @@ if ( isset($_POST['delete']) ) {
     ->select('account_subheads.*', 'account_heads.accounthead')->get();
     // dd($data['subaccounts']);
 	return view('account.subaccount', $data);
-	    
+
    }
 
    public function newaccount(Request $request)
@@ -84,7 +84,7 @@ if ( isset($_POST['delete']) ) {
     $data['accountHead'] = SessionTrait::validate($request, 'accountHead');
     $data['subaccount'] = SessionTrait::validate($request, 'subaccount');
     $data['account'] = SessionTrait::validate($request, 'account');
-    
+
     if (isset ($_POST['addnew'])) {
         $this->validate($request, [
             'subaccount'          => 'required',
@@ -103,9 +103,9 @@ if ( isset($_POST['delete']) ) {
         'accountdescription' => $request->input('account'),
         'status' => 1,
         'rank' => 0,
-        
+
     ]);
-   
+
     SessionTrait::forget($request, [
         'accountHead',
         'subaccount',
@@ -132,7 +132,7 @@ if ( isset($_POST['delete']) ) {
     ->select('account_charts.*', 'account_subheads.subhead', 'account_heads.accounthead')->get();
     // dd( $data['accounts']);
 	return view('account.account', $data);
-	    
+
    }
    public function NewAccSubCode($head) {
     $data=0;
@@ -155,7 +155,7 @@ if ( isset($_POST['delete']) ) {
 }
 
 public function trialbalance(Request $request){
-    
+
     $data['todate']=$request->input('todate');
     if ($data['todate']=="") {$data['todate']=date("Y-m-d");}
     $data['TrialBal'] = AccountTrait::trialBal('1900-01-01', $data['todate']);
@@ -165,11 +165,11 @@ public function pl(Request $request)
    {
        	$data['todate']=$request->input('todate');
        	if ($data['todate']=="") {$data['todate']=date("Y-m-d");}
-       
+
     $data['Incomedata'] = AccountTrait::income('1900-01-01', $data['todate']);
     $data['Expensedata'] = AccountTrait::expenses('1900-01-01', $data['todate']);
     // dd($data['Expensedata']);
-    
+
 	return view('account.pl', $data);
    }
    public function balanceSheet(Request $request)

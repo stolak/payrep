@@ -37,7 +37,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">Pre-Journal Transfer</h4>
+                            <h4 class="card-title">Journal Validation</h4>
                         </div>
                         <div class="card-body">
                             <form method="post" id="transdetails" name="transdetails">

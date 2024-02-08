@@ -228,7 +228,7 @@ trait AccountTrait
     }
 
 
-    public function PettyTransaction($petty = '', $br = '') {
+    public static function PettyTransaction($petty = '', $br = '') {
         $qPetty = 1;
         if (!empty($petty)) {
             $qPetty = "`pettyhandling_transactions`.`projectid`='$petty'";
@@ -255,6 +255,54 @@ trait AccountTrait
                 users ON users.id = pettyhandling_transactions.final_post_by
             WHERE
                 $qBranch AND $qPetty"
+        ));
+    }
+
+
+    public static function defaultAccountLookUp($id) {
+        $headId = DB::table('default_setups')->where('id', $id)->value('headid');
+
+        return DB::select(DB::raw(
+            "SELECT *
+            FROM account_charts
+            WHERE headid = :headId"
+        ), ['headId' => $headId]);
+    }
+
+
+
+    public function defaultAccount() {
+
+        return DB::select(DB::raw(
+            "SELECT
+                *,
+                (SELECT CONCAT(accountdescription, '(', accountno, ')') FROM account_charts WHERE account_charts.id = default_setups.accoountId) as AccountName
+            FROM
+                default_setups"
+        ));
+    }
+
+    // public static function defaultProductAccountLookUp($id) {
+    //     $accoountId = DB::table('product_types')->where('id', $id)->value('account_id');
+
+    //     return DB::table('account_charts')->get();
+    // }
+
+
+    Public function defaultProductAccountLookUp($id) {
+	    // $id2=DB::table('tblDefault_setup')->where('id', '=', $id)->value('headid');
+	    return DB::Select("SELECT * FROM `account_charts`");
+	}
+
+    public function defaultProductAccount() {
+
+        return DB::select(DB::raw(
+            "SELECT
+                *,
+                (SELECT CONCAT(accountdescription, '(', accountno, ')') FROM account_charts WHERE account_charts.id = product_types.account_id) as AccountName
+            FROM
+                product_types
+            ORDER BY description"
         ));
     }
 

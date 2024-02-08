@@ -27,7 +27,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">Sub-account Setup</h4>
+                            <h4 class="card-title">Product Type Setup</h4>
                         </div>
                         <div class="card-body">
                             <form method="post" name="mainform" id="mainform">
@@ -36,13 +36,14 @@
                                     <div class="row">
                                         <div class="col-sm-5">
                                             <div class="form-group">
-                                                <label class="control-label">Particular</label>
-                                                <select class="form-control" name="particular" onchange="Reload();">
+                                                <label class="control-label">Product Type</label>
+                                                <select class="form-control" name="particular">
                                                     <option value="">--Select--</option>
-                                                    @foreach ($DefaultAccount as $list)
+                                                    @foreach ($DefaultProduct as $list)
                                                         <option value="{{ $list->id }}"
                                                             {{ old('particular') == $list->id || $particular == $list->id ? 'selected' : '' }}>
-                                                            {{ $list->Particular }}</option>
+                                                            {{ $list->description }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -50,9 +51,9 @@
                                         <div class="col-sm-5">
                                             <div class="form-group">
                                                 <label class="control-label">Lookup Account</label>
-                                                <select class="form-control" name="accountid">
+                                                <select class="form-control select2" name="accountid">
                                                     <option value="">--Select--</option>
-                                                    @foreach ($DefaultAccountLookUp as $list)
+                                                    @foreach ($DefaultAccountSetUp as $list)
                                                         <option value="{{ $list->id }}"
                                                             {{ old('accountid') == $list->id || $accountid == $list->id ? 'selected' : '' }}>
                                                             {{ $list->accountdescription }}({{ $list->accountno }})
@@ -63,8 +64,10 @@
                                         </div>
                                         <div class="col-sm-2">
                                             <div class="form-group">
-                                                <label class="control-label" style="visibility: hidden;">Hidden Label</label>
-                                                <button class="btn btn-success form-control" type="submit" name="update" style="color: white">Update</button>
+                                                <label class="control-label" style="visibility: hidden;">Hidden
+                                                    Label</label>
+                                                <button class="btn btn-success form-control" type="submit" name="update"
+                                                    style="color: white">Update</button>
                                             </div>
                                         </div>
                                     </div>
@@ -72,7 +75,7 @@
                                 </div>
 
                             </form>
-                                <br>
+                            <br>
                             <div class="table-responsive" style="font-size: 11px; padding:10px;">
                                 <table id="mytable" class="table table-bordered table-striped table-highlight">
                                     <thead>
@@ -89,13 +92,11 @@
                                             $i = 1;
                                         @endphp
 
-                                        @foreach ($DefaultAccount as $list)
+                                        @foreach ($DefaultProduct as $list)
                                             <tr>
                                                 <td>{{ $i++ }} </td>
-                                                <td>{{ $list->Particular }} </td>
+                                                <td>{{ $list->description }} </td>
                                                 <td>{{ $list->AccountName }}</td>
-
-
                                             </tr>
                                         @endforeach
                                     </tbody>

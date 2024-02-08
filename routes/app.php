@@ -81,7 +81,10 @@ Route::middleware('auth')->group(function () {
         Route::any('/group-journal-post',   [AccountSetup::class, 'Journal_Final_post']);
 
         Route::any('/account-statement',    [AccountReport::class, 'AccountStatements']);
-        Route::any('/account-statement-pdf',  [PDFReport::class, 'AccountStatements']);
-        Route::any('/petty-cash',                  [AccountSetup::class, 'PettyCashHandling']);
+        Route::any('/account-statement-pdf',[PDFReport::class, 'AccountStatements']);
+        Route::any('/petty-cash',           [AccountSetup::class, 'PettyCashHandling']);
+        Route::any('/particular-setup',     [AccountSetup::class, 'DefaultAccountSetup']);
+        Route::any('/product-setup',     [AccountSetup::class, 'DefaultProductSetup']);
+
 
 });

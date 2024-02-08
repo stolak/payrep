@@ -271,29 +271,6 @@ class AccountSetup extends Controller {
     }
 
 
-    public function DefaultAccountSetup(Request $request) {
-        //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
-        $data['particular']=$request->input('particular');
-        $data['accountid']=$request->input('accountid');
-
-            if ( isset( $_POST['update'] ) ) {
-                $this->validate($request, [
-                'particular'  => 'required|string',
-                'accountid'      => 'required|string',
-                ]);
-
-                DB::table('tblDefault_setup')->where('id',$data['particular'])->update([
-                    'accoountId' => $data['accountid'] ,
-                    ]);
-                    return back()->with('message','record successfully updated.'  );
-            }
-        $data['DefaultAccountLookUp'] = $this->DefaultAccountLookUp($data['particular']);
-        $data['DefaultAccount'] = $this->DefaultAccount();
-        return view('AccountSetup.defaultaccount', $data);
-
-    }
-
-
     public function EndofYearClosingOld(Request $request) {
 
         $data['manual_ref']=$request->input('manual_ref');
@@ -973,6 +950,65 @@ class AccountSetup extends Controller {
             $data['ProjectAccount'] = AccountTrait::ProjectAccount();
             $data['PettyTransaction'] = AccountTrait::PettyTransaction();
             return view('AccountSetup.pettycash', $data);
+    }
+
+
+    public function DefaultAccountSetup(Request $request) {
+        //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
+        $data['particular']=$request->input('particular');
+        $data['accountid']=$request->input('accountid');
+
+            if ( isset( $_POST['update'] ) ) {
+                $this->validate($request, [
+                'particular'  => 'required|string',
+                'accountid'      => 'required|string',
+                ]);
+
+                DB::table('default_setups')->where('id',$data['particular'])->update([
+                    'accoountId' => $data['accountid'] ,
+                ]);
+
+                return back()->with('message','record successfully updated.'  );
+            }
+
+        $data['DefaultAccountLookUp'] = AccountTrait::defaultAccountLookUp($data['particular']);
+        $data['DefaultAccount'] = AccountTrait::defaultAccount();
+
+        return view('AccountSetup.defaultaccount', $data);
+
+    }
+
+
+    public function DefaultProductSetup(Request $request) {
+        //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
+        $data['particular']=$request->input('particular');
+        $data['accountid']=$request->input('accountid');
+
+        // dd($request->all());
+
+            if ( isset( $_POST['update'] ) ) {
+                $this->validate($request, [
+                'particular'  => 'required|string',
+                'accountid'      => 'required|string',
+                ]);
+
+                DB::table('product_types')->where('id', $data['particular'])->update([
+                    'account_id' => $data['accountid'] ,
+                ]);
+
+                return back()->with('message','record successfully updated.'  );
+            }
+
+        // $data['DefaultAccountSetUp'] = DB::table('account_charts')->get();
+        // $data['DefaultProduct'] = DB::table('product_types')->get();
+        // $data['DefaultProduct'] = DB::table('product_types')->get();
+
+        $data['DefaultAccountSetUp'] = AccountTrait::defaultProductAccountLookUp($data['particular']);
+        $data['DefaultProduct'] = AccountTrait::defaultProductAccount();
+
+        // dd($data);
+        return view('AccountSetup.defaultproduct', $data);
+
     }
 
 }

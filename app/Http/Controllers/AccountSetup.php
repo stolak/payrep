@@ -984,31 +984,28 @@ class AccountSetup extends Controller {
         $data['particular']=$request->input('particular');
         $data['accountid']=$request->input('accountid');
 
-        // dd($request->all());
+        if ( isset( $_POST['update'] ) ) {
+            $this->validate($request, [
+            'particular'  => 'required|string',
+            'accountid'      => 'required|string',
+            ]);
 
-            if ( isset( $_POST['update'] ) ) {
-                $this->validate($request, [
-                'particular'  => 'required|string',
-                'accountid'      => 'required|string',
-                ]);
+            DB::table('product_types')->where('id', $data['particular'])->update([
+                'account_id' => $data['accountid'] ,
+            ]);
 
-                DB::table('product_types')->where('id', $data['particular'])->update([
-                    'account_id' => $data['accountid'] ,
-                ]);
+            return back()->with('message','record successfully updated.'  );
+        }
 
-                return back()->with('message','record successfully updated.'  );
-            }
-
-        // $data['DefaultAccountSetUp'] = DB::table('account_charts')->get();
-        // $data['DefaultProduct'] = DB::table('product_types')->get();
-        // $data['DefaultProduct'] = DB::table('product_types')->get();
 
         $data['DefaultAccountSetUp'] = AccountTrait::defaultProductAccountLookUp($data['particular']);
         $data['DefaultProduct'] = AccountTrait::defaultProductAccount();
 
-        // dd($data);
         return view('AccountSetup.defaultproduct', $data);
 
     }
 
 }
+
+
+//XCHANGE BOX ACCOUNTING SOLUTIONS

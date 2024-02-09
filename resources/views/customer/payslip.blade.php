@@ -8,72 +8,72 @@
         border-collapse: collapse;
         table-layout: fixed;
       }
-      
+
       .head {
         margin: 10px;
         margin-bottom: 50px;
         width: 100%;
       }
-      
+
       .companyName {
         text-align: right;
         font-size: 25px;
         font-weight: bold;
       }
-      
+
       .salaryMonth {
         text-align: center;
       }
-      
+
       .table-border-bottom {
         border-bottom: 1px solid;
       }
-      
+
       .table-border-right {
         border-right: 1px solid;
       }
-      
+
       .myBackground {
         padding-top: 10px;
         text-align: left;
         border: 1px solid black;
         height: 40px;
       }
-      
+
       .myAlign {
         text-align: center;
         border-right: 1px solid black;
       }
-      
+
       .myTotalBackground {
         padding-top: 10px;
         text-align: left;
         background-color: #EBF1DE;
         border-spacing: 0px;
       }
-      
+
       .align-4 {
         width: 25%;
         float: left;
       }
-      
+
       .tail {
         margin-top: 35px;
       }
-      
+
       .align-2 {
         margin-top: 25px;
         width: 50%;
         float: left;
       }
-      
+
       .border-center {
         text-align: center;
       }
       .border-center th, .border-center td {
         border: 1px solid black;
       }
-      
+
       th, td {
         padding-left: 6px;
       }
@@ -85,7 +85,7 @@
       <tr height="100px" style=''>
         <td colspan='4'>
           <img height="90px" src='https://app.credithubltd.com/assets/img/logo.jpeg' /></td>
-        <td colspan='4' class="companyName"> Credit Hub Limited.</td>
+        <td colspan='4' class="companyName"> XCHANGE BOX ACCOUNTING SOLUTIONS</td>
       </tr>
       <tr>
         <th>
@@ -111,17 +111,17 @@
       </tr>
       <tr>
         <th>
-         
+
         </th>
         <td>
-          
+
         </td>
         <td></td>
         <th>
-          
+
         </th>
         <td>
-          
+
         </td>
         <td></td>
         <th>
@@ -131,7 +131,7 @@
           {{$payslip->Month}}, {{$payslip->Year}}
         </td>
       </tr>
-      
+
       <tr class="myBackground">
         <th colspan="2">
           Earnings
@@ -231,12 +231,12 @@
          {{number_format($payslip->utility??0,2, '.', ',')}}
         </td>
         <th colspan="2">
-          
+
         </th>
         <td></td>
 
         <td class="myAlign">
-         
+
         </td>
       </tr>
       <tr class="myBackground">
@@ -255,7 +255,7 @@
       </tr>
       <tr height="40px">
         <th colspan="2">
-          
+
         </th>
         <th>
         </th>
@@ -270,8 +270,8 @@
           {{number_format(($payslip->basic+$payslip->housing+$payslip->transportation+$payslip->utility+$payslip->medical)-($payslip->tax+$payslip->pension+$payslip->loan+$payslip->nhf),2, '.', ',')}}
         </td>
       </tr>
-      
-      
+
+
     </table>
 
   </div>

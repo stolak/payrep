@@ -53,12 +53,12 @@
 							<div class="account-content">
 								<div class="row align-items-center justify-content-center">
 									<div class="col-md-7 col-lg-6 login-left">
-                                        <h2>XCHANGE BOX ACCOUNTING SOLUTIONS</h2>
+                                        <h2 style="text-align: center">ACCOUNTING SOLUTIONS</h2>
 										<img src="assets2/img/budget-banner.jpg" class="img-fluid" alt="Budget Management System">
 									</div>
 									<div class="col-md-12 col-lg-6 login-right">
 										<div class="login-header">
-											<h3>Loan Management System </h3>
+											<h3>Login </h3>
 										</div>
 										<form action="{{ url('/login') }}" method="POST">
 										    {{ csrf_field() }}

@@ -1006,6 +1006,3 @@ class AccountSetup extends Controller {
     }
 
 }
-
-
-//XCHANGE BOX ACCOUNTING SOLUTIONS

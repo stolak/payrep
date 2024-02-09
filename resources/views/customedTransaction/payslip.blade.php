@@ -90,7 +90,7 @@
             <td colspan='4'>
                 <img height="90px" src='https://app.credithubltd.com/assets/img/logo.jpeg' />
             </td>
-            <td colspan='4' class="companyName"> XCHANGE BOX ACCOUNTING SOLUTIONS</td>
+            <td colspan='4' class="companyName">ACCOUNTING SOLUTIONS</td>
         </tr>
         <tr>
             <th>

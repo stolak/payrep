@@ -57,11 +57,11 @@ trait AccountTrait
 
 	public static function journalPending($status) {
 	    $userid=Auth::user()->id;
-		return DB::table('tbltemp_journal_transfer')
-		->where('tbltemp_journal_transfer.status', $status)
-		->where('tbltemp_journal_transfer.postby', $userid)
-		->leftjoin('account_charts','account_charts.id','tbltemp_journal_transfer.accountid')
-		->select('tbltemp_journal_transfer.*','account_charts.accountdescription')->get();
+		return DB::table('temp_journal_transfer')
+		->where('temp_journal_transfer.status', $status)
+		->where('temp_journal_transfer.postby', $userid)
+		->leftjoin('account_charts','account_charts.id','temp_journal_transfer.accountid')
+		->select('temp_journal_transfer.*','account_charts.accountdescription')->get();
 	}
 
 
@@ -153,25 +153,24 @@ trait AccountTrait
         $userid = Auth::user()->id;
         return DB::select("
             SELECT
-                tbltemp_journal_transfer.ref,
-                tbltemp_journal_transfer.transdate,
-                tbltemp_journal_transfer.manual_ref,
-                SUM(tbltemp_journal_transfer.credit) AS t_val,
+                temp_journal_transfer.ref,
+                temp_journal_transfer.transdate,
+                temp_journal_transfer.manual_ref,
+                SUM(temp_journal_transfer.credit) AS t_val,
                 users.name
             FROM
-                `tbltemp_journal_transfer`
+                `temp_journal_transfer`
             LEFT JOIN
-                users ON `users`.`id` = tbltemp_journal_transfer.postby
+                users ON `users`.`id` = temp_journal_transfer.postby
             WHERE
-                `batch_status` = '0' AND `postby` = '$userid'
+                `batch_status` = '0' AND `postby` = '$userid' and temp_journal_transfer.ref <> ''
             GROUP BY
-                tbltemp_journal_transfer.ref,
-                tbltemp_journal_transfer.transdate,
-                tbltemp_journal_transfer.manual_ref,
+                temp_journal_transfer.ref,
+                temp_journal_transfer.transdate,
+                temp_journal_transfer.manual_ref,
                 users.name
             ORDER BY
-                tbltemp_journal_transfer.transdate,
-                tbltemp_journal_transfer.id
+                temp_journal_transfer.transdate
         ");
     }
 
@@ -182,9 +181,9 @@ trait AccountTrait
                 *,
                 (SELECT CONCAT(`accountdescription`, '(', `accountno`, ')')
                  FROM `account_charts`
-                 WHERE `account_charts`.`id` = `tbltemp_journal_transfer`.accountid) as accountdescription
+                 WHERE `account_charts`.`id` = `temp_journal_transfer`.accountid) as accountdescription
             FROM
-                `tbltemp_journal_transfer`
+                `temp_journal_transfer`
             WHERE
                 `ref` = :ref
                 AND `batch_status` = :status",

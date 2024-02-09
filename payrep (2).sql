@@ -4873,11 +4873,11 @@ INSERT INTO `tblstatus` (`id`, `status`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tbltemp_journal_transfer`
+-- Table structure for table `temp_journal_transfer`
 --
 
-DROP TABLE IF EXISTS `tbltemp_journal_transfer`;
-CREATE TABLE IF NOT EXISTS `tbltemp_journal_transfer` (
+DROP TABLE IF EXISTS `temp_journal_transfer`;
+CREATE TABLE IF NOT EXISTS `temp_journal_transfer` (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `transtype` varchar(100) NOT NULL,
   `accountid` int NOT NULL,
@@ -4898,10 +4898,10 @@ CREATE TABLE IF NOT EXISTS `tbltemp_journal_transfer` (
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `tbltemp_journal_transfer`
+-- Dumping data for table `temp_journal_transfer`
 --
 
-INSERT INTO `tbltemp_journal_transfer` (`id`, `transtype`, `accountid`, `debit`, `credit`, `status`, `batch_status`, `ref`, `manual_ref`, `transdate`, `post_at`, `postby`, `remarks`, `created_at`, `f_post_at`, `final_post_by`) VALUES
+INSERT INTO `temp_journal_transfer` (`id`, `transtype`, `accountid`, `debit`, `credit`, `status`, `batch_status`, `ref`, `manual_ref`, `transdate`, `post_at`, `postby`, `remarks`, `created_at`, `f_post_at`, `final_post_by`) VALUES
 (1, 'Debit', 12, 777, 0, 0, 1, NULL, NULL, NULL, NULL, 13, '7u7', '2024-02-01 17:23:42', NULL, 0);
 
 -- --------------------------------------------------------

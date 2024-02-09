@@ -542,8 +542,8 @@ class Basefunction extends Controller
 	Public function JournalPending($status) {
 	    $userid=Auth::user()->id;
 	    return DB::Select("SELECT *
-	    ,(SELECT Concat(`accountdescription`,'(',`accountno`,')') FROM `tblaccountchart` WHERE `tblaccountchart`.`id`=`tbltemp_journal_transfer`.accountid) as account_details
-	    FROM `tbltemp_journal_transfer` WHERE `postby`='$userid' and `status`='0'");
+	    ,(SELECT Concat(`accountdescription`,'(',`accountno`,')') FROM `tblaccountchart` WHERE `tblaccountchart`.`id`=`temp_journal_transfer`.accountid) as account_details
+	    FROM `temp_journal_transfer` WHERE `postby`='$userid' and `status`='0'");
 	}
 	Public function AccountStatementRunningTotal($account,$fromdate,$todate) {
     $opening="0";
@@ -662,9 +662,9 @@ Public function RefBatch() {
 
 	Public function UnpostedJournalPendingOLD($status) { // by mr steve
 	    $userid=Auth::user()->id;
-	    return DB::Select("SELECT tbltemp_journal_transfer.*,sum(tbltemp_journal_transfer.credit) as t_val,users.name
-	    FROM `tbltemp_journal_transfer` left join users  on `users`.`id`=tbltemp_journal_transfer.postby WHERE  `batch_status`='0' and tbltemp_journal_transfer.status=1 group by ref
-	    order by tbltemp_journal_transfer.transdate,tbltemp_journal_transfer.id");
+	    return DB::Select("SELECT temp_journal_transfer.*,sum(temp_journal_transfer.credit) as t_val,users.name
+	    FROM `temp_journal_transfer` left join users  on `users`.`id`=temp_journal_transfer.postby WHERE  `batch_status`='0' and temp_journal_transfer.status=1 group by ref
+	    order by temp_journal_transfer.transdate,temp_journal_transfer.id");
 	}
 
     public function UnpostedJournalPending($status) {
@@ -672,29 +672,29 @@ Public function RefBatch() {
 
         return DB::select("
             SELECT
-                tbltemp_journal_transfer.ref,
-                SUM(tbltemp_journal_transfer.credit) AS t_val,
+                temp_journal_transfer.ref,
+                SUM(temp_journal_transfer.credit) AS t_val,
                 users.name
             FROM
-                `tbltemp_journal_transfer`
+                `temp_journal_transfer`
             LEFT JOIN
-                users ON `users`.`id` = tbltemp_journal_transfer.postby
+                users ON `users`.`id` = temp_journal_transfer.postby
             WHERE
                 `batch_status` = '0' AND
-                tbltemp_journal_transfer.status = :status
+                temp_journal_transfer.status = :status
             GROUP BY
-                tbltemp_journal_transfer.ref, users.name
+                temp_journal_transfer.ref, users.name
             ORDER BY
-                tbltemp_journal_transfer.transdate, tbltemp_journal_transfer.id
+                temp_journal_transfer.transdate, temp_journal_transfer.id
         ", ['status' => $status]);
     }
     
 	Public function UnpostedJournalPending_sefOLD($status) {
 	    $userid=Auth::user()->id;
-	    return DB::Select("SELECT tbltemp_journal_transfer.*,sum(tbltemp_journal_transfer.credit) as t_val,users.name
-	    FROM `tbltemp_journal_transfer` left join users  on `users`.`id`=tbltemp_journal_transfer.postby WHERE  `batch_status`='0' and  `postby`='$userid'
-        group by tbltemp_journal_transfer.ref
-	    order by tbltemp_journal_transfer.transdate,tbltemp_journal_transfer.id");
+	    return DB::Select("SELECT temp_journal_transfer.*,sum(temp_journal_transfer.credit) as t_val,users.name
+	    FROM `temp_journal_transfer` left join users  on `users`.`id`=temp_journal_transfer.postby WHERE  `batch_status`='0' and  `postby`='$userid'
+        group by temp_journal_transfer.ref
+	    order by temp_journal_transfer.transdate,temp_journal_transfer.id");
 
 	}
 
@@ -702,44 +702,44 @@ Public function RefBatch() {
         $userid = Auth::user()->id;
         return DB::select("
             SELECT
-                tbltemp_journal_transfer.*,
-                sum(tbltemp_journal_transfer.credit) as t_val,
+                temp_journal_transfer.*,
+                sum(temp_journal_transfer.credit) as t_val,
                 users.name
             FROM
-                `tbltemp_journal_transfer`
+                `temp_journal_transfer`
             LEFT JOIN
-                users ON `users`.`id` = tbltemp_journal_transfer.postby
+                users ON `users`.`id` = temp_journal_transfer.postby
             WHERE
                 `batch_status` = '0' AND `postby` = '$userid'
             GROUP BY
-                tbltemp_journal_transfer.id,
-                tbltemp_journal_transfer.ref,
-                tbltemp_journal_transfer.transtype,
-                tbltemp_journal_transfer.accountid,
-                tbltemp_journal_transfer.debit,
-                tbltemp_journal_transfer.credit,
-                tbltemp_journal_transfer.status,
-                tbltemp_journal_transfer.batch_status,
-                tbltemp_journal_transfer.manual_ref,
-                tbltemp_journal_transfer.post_at,
-                tbltemp_journal_transfer.postby,
-                tbltemp_journal_transfer.remarks,
-                tbltemp_journal_transfer.created_at,
-                tbltemp_journal_transfer.f_post_at,
-                tbltemp_journal_transfer.final_post_by,
+                temp_journal_transfer.id,
+                temp_journal_transfer.ref,
+                temp_journal_transfer.transtype,
+                temp_journal_transfer.accountid,
+                temp_journal_transfer.debit,
+                temp_journal_transfer.credit,
+                temp_journal_transfer.status,
+                temp_journal_transfer.batch_status,
+                temp_journal_transfer.manual_ref,
+                temp_journal_transfer.post_at,
+                temp_journal_transfer.postby,
+                temp_journal_transfer.remarks,
+                temp_journal_transfer.created_at,
+                temp_journal_transfer.f_post_at,
+                temp_journal_transfer.final_post_by,
                 users.name,
-                tbltemp_journal_transfer.transdate
+                temp_journal_transfer.transdate
             ORDER BY
-                tbltemp_journal_transfer.transdate,
-                tbltemp_journal_transfer.id
+                temp_journal_transfer.transdate,
+                temp_journal_transfer.id
         ");
     }
 
 
 	Public function SelectedJournalPending($ref,$status) {
 	    return DB::Select("SELECT *
-	    ,(SELECT Concat(`accountdescription`,'(',`accountno`,')') FROM `tblaccountchart` WHERE `tblaccountchart`.`id`=`tbltemp_journal_transfer`.accountid) as account_details
-	    FROM `tbltemp_journal_transfer` WHERE `ref`='$ref' and `batch_status`='$status'");
+	    ,(SELECT Concat(`accountdescription`,'(',`accountno`,')') FROM `tblaccountchart` WHERE `tblaccountchart`.`id`=`temp_journal_transfer`.accountid) as account_details
+	    FROM `temp_journal_transfer` WHERE `ref`='$ref' and `batch_status`='$status'");
 	}
 	Public function QuarterlyPeriod() {
 	    return DB::Select("SELECT * FROM `tblevaluation_period`");

@@ -108,7 +108,7 @@ class AccountReport extends Controller {
         DB::delete("DELETE FROM `tblaccount_transaction` WHERE `ref`='$del'");
         DB::delete("DELETE FROM `tblbatch_post_temp` WHERE `ref`='$del'");
         DB::delete("DELETE FROM `tblpettyhandling_transaction` WHERE `ref`='$del'");
-        DB::delete("DELETE FROM `tbltemp_journal_transfer` WHERE `ref`='$del'");
+        DB::delete("DELETE FROM `temp_journal_transfer` WHERE `ref`='$del'");
          return back()->with('message',' Record successfully trashed.'  );
     }
         $data['RefBatch']=$this->RefBatch();

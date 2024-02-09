@@ -70,7 +70,7 @@ class AccountJournalController extends Controller
             'transdate'=>'Transaction Date',
             ]);
             $userid=Auth::user()->id;
-            DB::table('tbltemp_journal_transfer')->insert([
+            DB::table('temp_journal_transfer')->insert([
     	         'transtype' => $data['transactiontype'] ,
     	          'accountid' => $data['accountNumber'] ,
     	          'debit' => $data['debitamount'] !== null ? $data['debitamount'] : 0 ,
@@ -95,7 +95,7 @@ class AccountJournalController extends Controller
             $refno=AccountTrait::RefNo();
             $userid=Auth::user()->id;
 
-             DB::table('tbltemp_journal_transfer')->where('postby',Auth::user()->id)->where('status',0)->update([
+             DB::table('temp_journal_transfer')->where('postby',Auth::user()->id)->where('status',0)->update([
     	          'status' => 1 ,
     	          'ref' => $refno ,
     	          'manual_ref' => $data['manual_ref'] ,
@@ -115,7 +115,7 @@ class AccountJournalController extends Controller
          }
          $del=$request->input('delid');
 
-         if(DB::delete("DELETE FROM `tbltemp_journal_transfer` WHERE `id`='$del'")) return back()->with('message','record successfully deleted!'  );
+         if(DB::delete("DELETE FROM `temp_journal_transfer` WHERE `id`='$del'")) return back()->with('message','record successfully deleted!'  );
 
         if ( isset( $_POST['update'] ) ) {
             $this->validate($request, [
@@ -137,7 +137,7 @@ class AccountJournalController extends Controller
             'transdate'=>'Transaction Date',
             ]);
 
-             DB::table('tbltemp_journal_transfer')->where('id',$data['id'])->update([
+             DB::table('temp_journal_transfer')->where('id',$data['id'])->update([
     	          'transtype' => $data['transactiontype'] ,
     	          'accountid' => $data['accountNumber'] ,
     	          'debit' => $data['debitamount'] !== null ? $data['debitamount'] : 0 ,
@@ -154,8 +154,8 @@ class AccountJournalController extends Controller
     $postby=Auth::user()->id;
     $data['AccountTransType'] =DB::table('tbltranstype')->get();
     $data['JournalPending'] = AccountTrait::journalPending(0);
-    $crdr= DB::sELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
-    $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
+    $crdr= DB::sELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `temp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
+    $data['defaultremark']= DB::table('temp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
     $data['crbal'] = ($crdr<0)? abs($crdr):'';
     $data['drbal'] = ($crdr>0)? abs($crdr):'';
 

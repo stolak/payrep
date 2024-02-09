@@ -492,13 +492,13 @@ class AccountSetup extends Controller {
                 'transdate'=>'Transaction Date',
                 ]);
                 $userid=Auth::user()->id;
-                // if($data['transactiontype']=='Credit' && DB::select("SELECT * FROM `tbltemp_journal_transfer` WHERE `transtype`='Credit' and `status`=0 and `postby`='$userid'") &&DB::select("SELECT count(`transtype`) FROM `tbltemp_journal_transfer` WHERE `transtype`='Debit' and `status`=0 and `postby`='$userid' group by `transtype` HAVING count(`transtype`) >1")){
+                // if($data['transactiontype']=='Credit' && DB::select("SELECT * FROM `temp_journal_transfer` WHERE `transtype`='Credit' and `status`=0 and `postby`='$userid'") &&DB::select("SELECT count(`transtype`) FROM `temp_journal_transfer` WHERE `transtype`='Debit' and `status`=0 and `postby`='$userid' group by `transtype` HAVING count(`transtype`) >1")){
                 //   return back()->with('message','You can only perform one to many.'  );
                 // }
-                // if($data['transactiontype']=='Debit' && DB::select("SELECT * FROM `tbltemp_journal_transfer` WHERE `transtype`='Debit' and `status`=0 and `postby`='$userid'") &&DB::select("SELECT count(`transtype`) FROM `tbltemp_journal_transfer` WHERE `transtype`='Credit' and `status`=0 and `postby`='$userid' group by `transtype` HAVING count(`transtype`) >1")){
+                // if($data['transactiontype']=='Debit' && DB::select("SELECT * FROM `temp_journal_transfer` WHERE `transtype`='Debit' and `status`=0 and `postby`='$userid'") &&DB::select("SELECT count(`transtype`) FROM `temp_journal_transfer` WHERE `transtype`='Credit' and `status`=0 and `postby`='$userid' group by `transtype` HAVING count(`transtype`) >1")){
                 //   return back()->with('message','You can only perform one to many.'  );
                 // }
-                DB::table('tbltemp_journal_transfer')->insert([
+                DB::table('temp_journal_transfer')->insert([
                     'transtype' => $data['transactiontype'] ,
                     'accountid' => $data['acctids'] ,
                     'debit' => $data['debitamount'] !== null ? $data['debitamount'] : 0 ,
@@ -523,7 +523,7 @@ class AccountSetup extends Controller {
                 $refno=$this->RefNo();
                 $userid=Auth::user()->id;
 
-                DB::table('tbltemp_journal_transfer')->where('postby',Auth::user()->id)->where('status',0)->update([
+                DB::table('temp_journal_transfer')->where('postby',Auth::user()->id)->where('status',0)->update([
                     'status' => 1 ,
                     'ref' => $refno ,
                     'manual_ref' => $data['manual_ref'] ,
@@ -542,7 +542,7 @@ class AccountSetup extends Controller {
             }
             $del=$request->input('delid');
 
-            if(DB::delete("DELETE FROM `tbltemp_journal_transfer` WHERE `id`='$del'")) return back()->with('message','record successfully deleted!'  );
+            if(DB::delete("DELETE FROM `temp_journal_transfer` WHERE `id`='$del'")) return back()->with('message','record successfully deleted!'  );
 
             if ( isset( $_POST['update'] ) ) {
                 $this->validate($request, [
@@ -564,7 +564,7 @@ class AccountSetup extends Controller {
                 'transdate'=>'Transaction Date',
                 ]);
 
-                DB::table('tbltemp_journal_transfer')->where('id',$data['id'])->update([
+                DB::table('temp_journal_transfer')->where('id',$data['id'])->update([
                     'transtype' => $data['transactiontype'] ,
                     'accountid' => $data['acctids'] ,
                     'debit' => $data['debitamount'] !== null ? $data['debitamount'] : 0 ,
@@ -581,8 +581,8 @@ class AccountSetup extends Controller {
             $data['AccountTransType'] = $this->AccountTransType();
             $data['JournalPending'] = $this->JournalPending(0);
             $postby= Auth::user()->id;
-            $crdr= DB::sELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
-            $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
+            $crdr= DB::sELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `temp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
+            $data['defaultremark']= DB::table('temp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
             $data['crbal'] = ($crdr<0)? abs($crdr):'';
             $data['drbal'] = ($crdr>0)? abs($crdr):'';
             return view('AccountSetup.journaltransfer', $data);
@@ -670,7 +670,7 @@ class AccountSetup extends Controller {
                 ]);
 
                 $userid=Auth::user()->id;
-                DB::table('tbltemp_journal_transfer')->insert([
+                DB::table('temp_journal_transfer')->insert([
                     'transtype' => $data['transactiontype'] ,
                     'accountid' => $data['acctids'] ,
                     'debit' => $data['debitamount'] !== null ? $data['debitamount'] : 0 ,
@@ -701,7 +701,7 @@ class AccountSetup extends Controller {
             $refno = AccountTrait::RefNo(0);
             $userid=Auth::user()->id;
 
-            DB::table('tbltemp_journal_transfer')->where('postby',Auth::user()->id)->where('status',0)->update([
+            DB::table('temp_journal_transfer')->where('postby',Auth::user()->id)->where('status',0)->update([
                 'status' => 1 ,
                 'ref' => $refno ,
                 'manual_ref' => $data['manual_ref'],
@@ -713,7 +713,7 @@ class AccountSetup extends Controller {
 
         if ( isset( $_POST['reverse'] ) ) {
 
-            DB::table('tbltemp_journal_transfer')->where('postby',Auth::user()->id)->where('ref',$request->input('ref'))->update([
+            DB::table('temp_journal_transfer')->where('postby',Auth::user()->id)->where('ref',$request->input('ref'))->update([
                 'status' => 0 ,
                 'ref' => '' ,
                 'manual_ref' => "" ,
@@ -724,8 +724,8 @@ class AccountSetup extends Controller {
 
         $del=$request->input('delid');
         $ref=$request->input('delref');
-        if(DB::delete("DELETE FROM `tbltemp_journal_transfer` WHERE `id`='$del'")) return back()->with('message','record successfully deleted!'  );
-        if(DB::delete("DELETE FROM `tbltemp_journal_transfer` WHERE `ref`='$ref' and `status`=1")) return back()->with('message','record successfully deleted!'  );
+        if(DB::delete("DELETE FROM `temp_journal_transfer` WHERE `id`='$del'")) return back()->with('message','record successfully deleted!'  );
+        if(DB::delete("DELETE FROM `temp_journal_transfer` WHERE `ref`='$ref' and `status`=1")) return back()->with('message','record successfully deleted!'  );
 
         if ( isset( $_POST['update'] ) ) {
             $this->validate($request, [
@@ -747,7 +747,7 @@ class AccountSetup extends Controller {
             'transdate'=>'Transaction Date',
             ]);
 
-            DB::table('tbltemp_journal_transfer')->where('id',$data['id'])->update([
+            DB::table('temp_journal_transfer')->where('id',$data['id'])->update([
                 'transtype' => $data['transactiontype'] ,
                 'accountid' => $data['acctids'] ,
                 'debit' => $data['debitamount'] !== null ? $data['debitamount'] : 0 ,
@@ -768,8 +768,8 @@ class AccountSetup extends Controller {
         $request->session()->forget('ref');
 
         $postby=Auth::user()->id;
-        $crdr= DB::SELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `tbltemp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
-        $data['defaultremark']= DB::table('tbltemp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
+        $crdr= DB::SELECT("SELECT ifnull(sum(`credit`-`debit`),0)as bal FROM `temp_journal_transfer` WHERE `postby`='$postby' and `status`=0")[0]->bal;
+        $data['defaultremark']= DB::table('temp_journal_transfer')->where('postby',$postby)->where('status',0)->value('remarks');
         $data['crbal'] = ($crdr<0)? abs($crdr):'';
         $data['drbal'] = ($crdr>0)? abs($crdr):'';
 
@@ -801,13 +801,13 @@ class AccountSetup extends Controller {
             'ini_transdate'=>'Transaction Date',
             ]);
 
-            if(DB::table('tbltemp_journal_transfer')->where('ref','<>',$data['ref'])->where('manual_ref',$data['manual_ref'])->first())return back()->with('error_message',$data['manual_ref'].' already exist with another record.'  );
+            if(DB::table('temp_journal_transfer')->where('ref','<>',$data['ref'])->where('manual_ref',$data['manual_ref'])->first())return back()->with('error_message',$data['manual_ref'].' already exist with another record.'  );
             //die('waiting'); Carbon::now()
             $data['f_post_at']  = Carbon::now()->format('Y-m-d');
             $refno              = $data['ref'];
             $userid             = Auth::user()->id;
 
-            if(DB::table('tbltemp_journal_transfer')->where('ref',$data['ref'])->update([
+            if(DB::table('temp_journal_transfer')->where('ref',$data['ref'])->update([
                 'batch_status' => 1 ,
                 'f_post_at' => $data['f_post_at'],
                 'final_post_by' => $userid,
@@ -815,7 +815,7 @@ class AccountSetup extends Controller {
                 'transdate' => $data['ini_transdate'],
                 ]))
 
-                $data['JournalPending'] =DB::table('tbltemp_journal_transfer')->where('ref',$data['ref'])->get();
+                $data['JournalPending'] =DB::table('temp_journal_transfer')->where('ref',$data['ref'])->get();
 
                 foreach ($data['JournalPending'] as $b){
                     if($b->debit!=0){
@@ -850,7 +850,7 @@ class AccountSetup extends Controller {
             'transdate'=>'Transaction Date',
             ]);
 
-            DB::table('tbltemp_journal_transfer')->where('id',$request['id'])->update([
+            DB::table('temp_journal_transfer')->where('id',$request['id'])->update([
                 'transtype' => $request['transactiontype'] ,
                 'accountid' => $request['acctids'] ,
                 'debit' => $request['debitamount'] !== null ? $request['debitamount'] : 0 ,
@@ -865,7 +865,7 @@ class AccountSetup extends Controller {
         if ( isset( $_POST['delupdate'] ) ) {
             $del= $request['delref'];
             //dd("$del");
-            if(DB::delete("DELETE FROM `tbltemp_journal_transfer` WHERE `ref`='$del'")) return back()->with('message','record successfully deleted!');
+            if(DB::delete("DELETE FROM `temp_journal_transfer` WHERE `ref`='$del'")) return back()->with('message','record successfully deleted!');
         }
 
         // $data['AccountList'] = $this->AccountList('','');

@@ -93,8 +93,6 @@ if ($date) {
                                 return $obj->description === $searchText;
                             });
 
-                            // dd($matchingObjects, $searchText );
-                            // $transdate = $this->UpdatetransactionDate($filesop[0]);
 
                             $filesop10 = preg_replace('/[^\d.]/', '', $filesop[10]);
                             $filesop11 = preg_replace('/[^\d.]/', '', $filesop[11]);
@@ -245,7 +243,7 @@ if ($date) {
                                 $filesop[1]. 'Opening Balance' ,
                                 Auth::User()->id,
                                 $ref);
-                            ;
+                            
                         }
 
                     }
@@ -340,7 +338,36 @@ $company_commission= reset($company_commission1)->account_id??0;
             switch ($data['transactionType']) {
                 case 1:
                     // do Bank Transfer'
-                    echo "Value 1";
+                    foreach($data['records'] as $record){
+                        AccountTrait::debitAccount(
+                        $accountPayable,
+                        !is_numeric($filesop4) ? 0 : $filesop4,
+                        $ref,
+                        date('Y-m-d'),
+                        $filesop[1]. 'Opening Balance' ,
+                        Auth::User()->id,
+                        $ref
+                    );
+
+                    }
+                    // AccountTrait::debitAccount(
+                    //     $accountPayable,
+                    //     !is_numeric($filesop4) ? 0 : $filesop4,
+                    //     $ref,
+                    //     date('Y-m-d'),
+                    //     $filesop[1]. 'Opening Balance' ,
+                    //     Auth::User()->id,
+                    //     $ref
+                    // );
+
+                    // AccountTrait::creditAccount(
+                    //     $account,
+                    //     !is_numeric($filesop4) ? 0 : $filesop4,
+                    //     $ref, 
+                    //     date('Y-m-d'),
+                    //     $filesop[1]. 'Opening Balance' ,
+                    //     Auth::User()->id,
+                    //     $ref);
                     break;
                 case 2:
                     // do Bank Transfer Reversal'

@@ -41,7 +41,7 @@
 													<select class="select2 form-control" name="status" id="status" onchange= 'Reload("mainform");'>
 														<option value="All" >--All--</option>
 														@foreach($transactionTypes as $list)
-														<option value="{{$list->code}}" {{$transactionType == (string) $list->code? 'selected':''}}>{{$list->status}} </option>
+														<option value="{{$list->id}}" {{$transactionType == (string) $list->id? 'selected':''}}>{{$list->description}} </option>
 														@endforeach
 													</select>
 												</div>

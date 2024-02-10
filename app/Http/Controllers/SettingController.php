@@ -101,10 +101,12 @@ class SettingController extends Controller
 
             return back()->with('message', 'New record successfully updated.');
         }
-        $data['particulars']=DB::table('account_setups')
+        $data['particulars']=DB::table('account_setups')->where('account_setups.status', 1)
         ->leftjoin('account_charts', 'account_setups.account_id', 'account_charts.id')
-        ->select('account_setups.*', 'account_charts.accountdescription')->get();
-        $data['accounts']=DB::table('account_charts')->where('headid', 7)->get();
+        ->select('account_setups.*', 'account_charts.accountdescription' )->get();
+        $data['accounts']=DB::table('account_charts')->get();
+        // $data['accounts']=DB::table('account_charts')->where('headid', 7)->get();
+
         return view('setup.income', $data);
                 
     }

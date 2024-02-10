@@ -16,6 +16,11 @@ trait AutomatedUploadTrait
     {
 	    return DB::table('agents')->get();
 	}
+
+	public static function transactionTypes()
+    {
+	    return DB::table('product_types')->get();
+	}
     
     
 }

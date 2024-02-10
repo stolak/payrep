@@ -78,6 +78,8 @@ Route::middleware('auth')->group(function () {
 
         Route::any('agent/upload',          [CustomedTransactionController::class, 'agentupload']);
 
+        Route::any('process/upload',          [CustomedTransactionController::class, 'processUpload']);
+
         Route::any('/group-journal-post',   [AccountSetup::class, 'Journal_Final_post']);
 
         Route::any('/account-statement',    [AccountReport::class, 'AccountStatements']);

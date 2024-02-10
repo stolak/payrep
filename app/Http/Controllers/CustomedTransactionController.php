@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\URL;
 use Session;
+use Carbon\Carbon;
 
 class CustomedTransactionController extends Controller
 {
@@ -20,6 +21,18 @@ class CustomedTransactionController extends Controller
         define("REGEX", "/[^\d.]/");
     }
 
+    public function formattedDate($dateStr)
+    {
+
+        $date = Carbon::createFromFormat('d/m/Y, H:i:s', $dateStr);
+
+if ($date) {
+    // Format the date in the desired format
+    return $date->format('Y-m-d');
+} else {
+    return date("Y-m-d");
+}
+    }
     public function upload(Request $request)
     {
 
@@ -127,7 +140,7 @@ class CustomedTransactionController extends Controller
                                 'upload_batch' => $refno,
                                 'transaction_type_id' =>reset($matchingObjects)->id??0,
                                 'account_id' =>reset($matchingObjects)->account_id??0,
-
+                                'formatted_date'=> $this->formattedDate($filesop[0])
                             ]);
                         }
                     }
@@ -138,7 +151,7 @@ class CustomedTransactionController extends Controller
 
         $data['records'] = AutomatedUploadTrait::searchUpload('', '', '', '');
 
-        $data['transactionTypes'] = LoanStatus::all();
+        $data['transactionTypes'] = AutomatedUploadTrait::transactionTypes();
 
         return view('customedTransaction.upload', $data);
     }
@@ -245,4 +258,162 @@ class CustomedTransactionController extends Controller
 
         return view('customedTransaction.agentUpload', $data);
     }
+
+    public function ProcessUpload(Request $request)
+    {
+
+
+        if (URL::previous() !== URL::current()) {
+            $request->session()->forget('transactionType');
+        }
+        $data['transactionType'] = $request->input('transactionType');
+        if ($data['transactionType'] == '') {
+            $data['transactionType'] = Session::get('transactionType');
+        }
+        Session(['transactionType' => $data['transactionType']]);
+
+        $data['toDate'] = $request->input('toDate');
+        if ($data['toDate'] == "") {
+            $data['toDate'] = date("Y-m-d");
+        }
+
+        $data['fromDate'] = $request->input('fromDate');
+        if ($data['fromDate'] == "") {
+            $data['fromDate'] = date("Y") . '-01-01';
+        }
+
+        $data['description'] = $request->input('description');
+        
+
+        $data['records'] = DB::table('automated_record')
+        ->select(
+            DB::raw('sum(`debit`) as debits'),
+            DB::raw('sum(`credit`) as credits'),
+            DB::raw('sum(`fees`) as fees'),
+            DB::raw('sum(`bank_charges`) as bank_charges'),
+            DB::raw('sum(`agent_commission`) as agent_commission'),
+            DB::raw('sum(`bonus`) as bonus'),
+            DB::raw('sum(`aggregator_commission`) as aggregator_commission'),
+            DB::raw('sum(`aggregator_referral`) as aggregator_referral'),
+            DB::raw('sum(`company_commission`) as company_commission'),
+            'account_number',
+            DB::raw('MAX(`account_name`) as account_name'), // Aggregating account_name
+            'account_id',
+            'formatted_date',
+            'transaction_type'
+        )
+        ->where('transaction_type_id', '=', $data['transactionType'])
+        ->groupBy('formatted_date', 'account_id', 'account_number','transaction_type')
+        ->get();
+
+        if (isset($_POST['process'])) {
+
+            $defaultSetup = DB::table('account_setups')->get()->toArray();
+$bank_charges =  array_filter($defaultSetup, function($obj)  {
+    return $obj->id ===6 ;
+});
+$agent_commission1 = array_filter($defaultSetup, function($obj)  {
+    return $obj->id ===6 ;
+});
+$agent_commission= reset($agent_commission1)->account_id??0;
+
+$bonus1 = array_filter($defaultSetup, function($obj)  {
+    return $obj->id ===7 ;
+});
+$bonus= reset($bonus1)->account_id??0;
+
+$aggregator_commission1 = array_filter($defaultSetup, function($obj)  {
+    return $obj->id ===8 ;
+});
+$aggregator_commission= reset($aggregator_commission1)->account_id??0;
+
+$aggregator_referral1 = array_filter($defaultSetup, function($obj)  {
+    return $obj->id ===9 ;
+});
+$aggregator_referral= reset($aggregator_referral1)->account_id??0;
+
+$company_commission1 = array_filter($defaultSetup, function($obj)  {
+    return $obj->id ===10 ;
+});
+$company_commission= reset($company_commission1)->account_id??0;
+
+            switch ($data['transactionType']) {
+                case 1:
+                    // do Bank Transfer'
+                    echo "Value 1";
+                    break;
+                case 2:
+                    // do Bank Transfer Reversal'
+                    echo "Value 2";
+                    break;
+                case 3:
+                    // do POS Withdrawal'
+                    echo "Value 3";
+                    break;
+                case 4:
+                    // do POS Withdrawal Reversal'
+                    echo "Value 4";
+                    break;
+                case 5:
+                    // do IRecharge'
+                    echo "Value 5";
+                    break;
+                case 6:
+                    // do IRecharge Reversal'
+                    echo "Value 6";
+                    break;
+                case 7:
+                    // do Cash Out'
+                    echo "Value 7";
+                    break;
+                case 8:
+                    // do KYC'
+                    echo "Value 8";
+                    break;
+
+                case 9:
+                    // do Settlement'
+                    echo "Value 3";
+                    break;
+                case 10:
+                    // do Device Retrieval'
+                    echo "Value 1";
+                    break;    break;
+                case 11:
+                    // do Pos Sales Revenue'
+                    echo "Value 1";
+                    break;
+                case 12:
+                    // do Pos Security Deposit'
+                    echo "Value 2";
+                    break;
+                case 14:
+                    // do Funding'
+                    echo "Value 4";
+                    break;
+                case 15:
+                    // do Deduction'
+                    echo "Value 5";
+                    break;
+                case 16:
+                    // do wallet top-up'
+                    echo "Value 6";
+                    break;
+                case 17:
+                    // do Wallet Transfer'
+                    echo "Value 7";
+                    break;
+                default:
+                    // do something if $variable does not match any of the above cases
+                    echo "Default Value";
+            }
+            dd("");
+
+        }
+
+        $data['transactionTypes'] = AutomatedUploadTrait::transactionTypes();
+
+        return view('customedTransaction.process_uploads', $data);
+    }
+
 }

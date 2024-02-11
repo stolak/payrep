@@ -283,7 +283,7 @@ if ($date) {
         $data['description'] = $request->input('description');
         
 
-        $data['records'] = DB::table('automated_record')
+        $data['records'] = DB::table('automated_record')->leftJoin('account_charts','account_charts.account_ref','automated_record.account_number')
         ->select(
             DB::raw('sum(`debit`) as debits'),
             DB::raw('sum(`credit`) as credits'),
@@ -296,6 +296,7 @@ if ($date) {
             DB::raw('sum(`company_commission`) as company_commission'),
             'account_number',
             DB::raw('MAX(`account_name`) as account_name'), // Aggregating account_name
+            DB::raw('MAX(`account_charts`.`id`) as agent_account'),
             'account_id',
             'formatted_date',
             'transaction_type'
@@ -303,7 +304,7 @@ if ($date) {
         ->where('transaction_type_id', '=', $data['transactionType'])
         ->groupBy('formatted_date', 'account_id', 'account_number','transaction_type')
         ->get();
-
+// dd( $data['records']);
         if (isset($_POST['process'])) {
 
             $defaultSetup = DB::table('account_setups')->get()->toArray();
@@ -339,55 +340,606 @@ $company_commission= reset($company_commission1)->account_id??0;
                 case 1:
                     // do Bank Transfer'
                     foreach($data['records'] as $record){
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks="Bank Transfer";
+
+                        //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
-                        $accountPayable,
-                        !is_numeric($filesop4) ? 0 : $filesop4,
+                        1,//$record->agent_account,
+                        !is_numeric($record->debits) ? 0 : $record->debits,
                         $ref,
-                        date('Y-m-d'),
-                        $filesop[1]. 'Opening Balance' ,
+                        $record->formatted_date,
+                        $remarks ,
                         Auth::User()->id,
                         $ref
                     );
 
+                    // debit agent wallet with fees charge
+                    AccountTrait::debitAccount(
+                        1,//$record->agent_account,
+                        !is_numeric($record->fees) ? 0 : $record->fees,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bank with debit amount
+                    AccountTrait::creditAccount(
+                        $record->account_id,
+                        !is_numeric($record->debits) ? 0 : $record->debits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bank with Bank Charges amount
+                    AccountTrait::creditAccount(
+                        $record->account_id,
+                        !is_numeric($record->bank_charges) ? 0 : $record->bank_charges,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit agent commission payable
+                    AccountTrait::creditAccount(
+                        $agent_commission,
+                        !is_numeric($record->agent_commission) ? 0 : $record->agent_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bonus payable
+                    AccountTrait::creditAccount(
+                        $bonus,
+                        !is_numeric($record->bonus) ? 0 : $record->bonus,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_commission payable
+                    AccountTrait::creditAccount(
+                        $aggregator_commission,
+                        !is_numeric($record->aggregator_commission) ? 0 : $record->aggregator_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_referral payable
+                    AccountTrait::creditAccount(
+                        $aggregator_referral,
+                        !is_numeric($record->aggregator_referral) ? 0 : $record->aggregator_referral,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit company_commission payable
+                    AccountTrait::creditAccount(
+                        $company_commission,
+                        !is_numeric($record->company_commission) ? 0 : $record->company_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
                     }
-                    // AccountTrait::debitAccount(
-                    //     $accountPayable,
-                    //     !is_numeric($filesop4) ? 0 : $filesop4,
-                    //     $ref,
-                    //     date('Y-m-d'),
-                    //     $filesop[1]. 'Opening Balance' ,
-                    //     Auth::User()->id,
-                    //     $ref
-                    // );
-
-                    // AccountTrait::creditAccount(
-                    //     $account,
-                    //     !is_numeric($filesop4) ? 0 : $filesop4,
-                    //     $ref, 
-                    //     date('Y-m-d'),
-                    //     $filesop[1]. 'Opening Balance' ,
-                    //     Auth::User()->id,
-                    //     $ref);
+                    
                     break;
                 case 2:
                     // do Bank Transfer Reversal'
-                    echo "Value 2";
+                    foreach($data['records'] as $record){
+                        
+                        $ref = AccountTrait::RefNo();
+                        $remarks="Bank Transfer Reversal";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::creditAccount(
+                        1,//$record->agent_account,
+                        !is_numeric($record->credits) ? 0 : $record->credits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+
+                    // debit agent wallet with fees charge
+                    AccountTrait::creditAccount(
+                        1,//$record->agent_account,
+                        !is_numeric($record->fees) ? 0 : $record->fees,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bank with debit amount
+                    AccountTrait::debitAccount(
+                        $record->account_id,
+                        !is_numeric($record->credits) ? 0 : $record->credits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bank with Bank Charges amount
+                    AccountTrait::debitAccount(
+                        $record->account_id,
+                        !is_numeric($record->bank_charges) ? 0 : $record->bank_charges,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit agent commission payable
+                    AccountTrait::debitAccount(
+                        $agent_commission,
+                        !is_numeric($record->agent_commission) ? 0 : $record->agent_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bonus payable
+                    AccountTrait::debitAccount(
+                        $bonus,
+                        !is_numeric($record->bonus) ? 0 : $record->bonus,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_commission payable
+                    AccountTrait::debitAccount(
+                        $aggregator_commission,
+                        !is_numeric($record->aggregator_commission) ? 0 : $record->aggregator_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_referral payable
+                    AccountTrait::debitAccount(
+                        $aggregator_referral,
+                        !is_numeric($record->aggregator_referral) ? 0 : $record->aggregator_referral,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit company_commission payable
+                    AccountTrait::debitAccount(
+                        $company_commission,
+                        !is_numeric($record->company_commission) ? 0 : $record->company_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    }
                     break;
                 case 3:
                     // do POS Withdrawal'
-                    echo "Value 3";
+                    foreach($data['records'] as $record){
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks="POS Transfer";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::creditAccount(
+                        1,//$record->agent_account,
+                        !is_numeric($record->credits) ? 0 : $record->credits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+
+                    // debit agent wallet with fees charge
+                    AccountTrait::debitAccount(
+                        1,//$record->agent_account,
+                        !is_numeric($record->fees) ? 0 : $record->fees,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bank with debit amount
+                    AccountTrait::debitAccount(
+                        $record->account_id,
+                        !is_numeric($record->credits) ? 0 : $record->credits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bank with Bank Charges amount
+                    AccountTrait::creditAccount(
+                        $record->account_id,
+                        !is_numeric($record->bank_charges) ? 0 : $record->bank_charges,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit agent commission payable
+                    AccountTrait::creditAccount(
+                        $agent_commission,
+                        !is_numeric($record->agent_commission) ? 0 : $record->agent_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bonus payable
+                    AccountTrait::creditAccount(
+                        $bonus,
+                        !is_numeric($record->bonus) ? 0 : $record->bonus,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_commission payable
+                    AccountTrait::creditAccount(
+                        $aggregator_commission,
+                        !is_numeric($record->aggregator_commission) ? 0 : $record->aggregator_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_referral payable
+                    AccountTrait::creditAccount(
+                        $aggregator_referral,
+                        !is_numeric($record->aggregator_referral) ? 0 : $record->aggregator_referral,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit company_commission payable
+                    AccountTrait::creditAccount(
+                        $company_commission,
+                        !is_numeric($record->company_commission) ? 0 : $record->company_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    }
                     break;
                 case 4:
                     // do POS Withdrawal Reversal'
-                    echo "Value 4";
+                    foreach($data['records'] as $record){
+                        
+                        $ref = AccountTrait::RefNo();
+                        $remarks="POS Reversal";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::debitAccount(
+                        1,//$record->agent_account,
+                        !is_numeric($record->debits) ? 0 : $record->debits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+
+                    // debit agent wallet with fees charge
+                    AccountTrait::creditAccount(
+                        1,//$record->agent_account,
+                        !is_numeric($record->fees) ? 0 : $record->fees,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bank with debit amount
+                    AccountTrait::creditAccount(
+                        $record->account_id,
+                        !is_numeric($record->debits) ? 0 : $record->debits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bank with Bank Charges amount
+                    AccountTrait::debitAccount(
+                        $record->account_id,
+                        !is_numeric($record->bank_charges) ? 0 : $record->bank_charges,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit agent commission payable
+                    AccountTrait::debitAccount(
+                        $agent_commission,
+                        !is_numeric($record->agent_commission) ? 0 : $record->agent_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bonus payable
+                    AccountTrait::debitAccount(
+                        $bonus,
+                        !is_numeric($record->bonus) ? 0 : $record->bonus,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_commission payable
+                    AccountTrait::debitAccount(
+                        $aggregator_commission,
+                        !is_numeric($record->aggregator_commission) ? 0 : $record->aggregator_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_referral payable
+                    AccountTrait::debitAccount(
+                        $aggregator_referral,
+                        !is_numeric($record->aggregator_referral) ? 0 : $record->aggregator_referral,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit company_commission payable
+                    AccountTrait::debitAccount(
+                        $company_commission,
+                        !is_numeric($record->company_commission) ? 0 : $record->company_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    }
                     break;
                 case 5:
                     // do IRecharge'
-                    echo "Value 5";
+                    foreach($data['records'] as $record){
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks="IRecharge";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::debitAccount(
+                        1,//$record->agent_account,
+                        !is_numeric($record->debits) ? 0 : $record->debits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+
+                    
+                    // credit bank with debit amount
+                    AccountTrait::creditAccount(
+                        $record->account_id,
+                        !is_numeric($record->debits) ? 0 : $record->debits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bank with Bank Charges amount
+                    AccountTrait::creditAccount(
+                        $record->account_id,
+                        !is_numeric($record->bank_charges) ? 0 : $record->bank_charges,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // debit agent wallet with fees charge
+                    $fees= $record->agent_commission+ $record->bonus+$record->aggregator_commission+$record->aggregator_referral+$record->company_commission;
+                    AccountTrait::debitAccount(
+                        $record->account_id,
+                        fees,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit agent commission payable
+                    AccountTrait::creditAccount(
+                        $agent_commission,
+                        !is_numeric($record->agent_commission) ? 0 : $record->agent_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bonus payable
+                    AccountTrait::creditAccount(
+                        $bonus,
+                        !is_numeric($record->bonus) ? 0 : $record->bonus,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_commission payable
+                    AccountTrait::creditAccount(
+                        $aggregator_commission,
+                        !is_numeric($record->aggregator_commission) ? 0 : $record->aggregator_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_referral payable
+                    AccountTrait::creditAccount(
+                        $aggregator_referral,
+                        !is_numeric($record->aggregator_referral) ? 0 : $record->aggregator_referral,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit company_commission payable
+                    AccountTrait::creditAccount(
+                        $company_commission,
+                        !is_numeric($record->company_commission) ? 0 : $record->company_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    }
                     break;
                 case 6:
                     // do IRecharge Reversal'
-                    echo "Value 6";
+                    foreach($data['records'] as $record){
+                        
+                        $ref = AccountTrait::RefNo();
+                        $remarks="IRecharge Reversal";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::creditAccount(
+                        1,//$record->agent_account,
+                        !is_numeric($record->credits) ? 0 : $record->credits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+
+                    
+                    // credit bank with debit amount
+                    AccountTrait::debitAccount(
+                        $record->account_id,
+                        !is_numeric($record->credits) ? 0 : $record->credits,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // debit agent wallet with fees charge
+                    AccountTrait::creditAccount(
+                        $record->account_id,
+                        !is_numeric($record->fees) ? 0 : $record->fees,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bank with Bank Charges amount
+                    AccountTrait::debitAccount(
+                        $record->account_id,
+                        !is_numeric($record->bank_charges) ? 0 : $record->bank_charges,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit agent commission payable
+                    AccountTrait::debitAccount(
+                        $agent_commission,
+                        !is_numeric($record->agent_commission) ? 0 : $record->agent_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit bonus payable
+                    AccountTrait::debitAccount(
+                        $bonus,
+                        !is_numeric($record->bonus) ? 0 : $record->bonus,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_commission payable
+                    AccountTrait::debitAccount(
+                        $aggregator_commission,
+                        !is_numeric($record->aggregator_commission) ? 0 : $record->aggregator_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit aggregator_referral payable
+                    AccountTrait::debitAccount(
+                        $aggregator_referral,
+                        !is_numeric($record->aggregator_referral) ? 0 : $record->aggregator_referral,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    // credit company_commission payable
+                    AccountTrait::debitAccount(
+                        $company_commission,
+                        !is_numeric($record->company_commission) ? 0 : $record->company_commission,
+                        $ref,
+                        $record->formatted_date,
+                        $remarks ,
+                        Auth::User()->id,
+                        $ref
+                    );
+                    }
                     break;
                 case 7:
                     // do Cash Out'
@@ -434,7 +986,6 @@ $company_commission= reset($company_commission1)->account_id??0;
                     // do something if $variable does not match any of the above cases
                     echo "Default Value";
             }
-            dd("");
 
         }
 

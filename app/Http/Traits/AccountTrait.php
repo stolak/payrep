@@ -9,7 +9,10 @@ trait AccountTrait
     public static function debitAccount($accountid, $amount, $ref, $transdate, $remark, $userid, $manual_ref)
     {
 
+        if($amount==0) return null;
+        
 	    $accountdetails = AccountTrait::getAccountDetails($accountid);
+        
 	    return DB::table('account_transactions')->insert([
             'groupid' => $accountdetails->groupid ,
             'headid' => $accountdetails->headid ,
@@ -28,6 +31,7 @@ trait AccountTrait
 
     public static  function creditAccount($accountid, $amount, $ref, $transdate, $remark, $userid, $manual_ref)
     {
+        if($amount==0) return null;
 	    $accountdetails=AccountTrait::getAccountDetails($accountid);
 	    return DB::table('account_transactions')->insert([
     	          'groupid' => $accountdetails->groupid ,

@@ -935,11 +935,66 @@ class CustomedTransactionController extends Controller
                     break;
                 case 7:
                     // do Cash Out'
-                    echo "Value 7";
+                    foreach ($data['records'] as $record) {
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks = "Cash Out";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::creditAccount(
+                            1, //$record->agent_account,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        // credit bank with debit amount
+                        AccountTrait::debitAccount(
+                            $record->account_id,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+                    
+                    }
                     break;
                 case 8:
                     // do KYC'
-                    echo "Value 8";
+                 
+                    foreach ($data['records'] as $record) {
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks = "Cash Out";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::debitAccount(
+                            1, //$record->agent_account,
+                            !is_numeric($record->debits) ? 0 : $record->debits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        // credit bank with debit amount
+                        AccountTrait::creditAccount(
+                            $record->account_id,
+                            !is_numeric($record->debits) ? 0 : $record->debits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+                    
+                    }
                     break;
 
                 case 9:
@@ -948,32 +1003,243 @@ class CustomedTransactionController extends Controller
                     break;
                 case 10:
                     // do Device Retrieval'
-                    echo "Value 1";
+                    foreach ($data['records'] as $record) {
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks = "Device Retrieval";
+
+                        //credit agent wallet with debit amount
+                        AccountTrait::creditAccount(
+                            1, //$record->agent_account,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        // debit bank with debit amount
+                        AccountTrait::debitAccount(
+                            $record->account_id,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+                    
+                    }
                     break;
                     break;
                 case 11:
                     // do Pos Sales Revenue'
-                    echo "Value 1";
+                    foreach ($data['records'] as $record) {
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks = "Pos Sales Revenue";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::debitAccount(
+                            1, //$record->agent_account,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        // credit bank with debit amount
+                        AccountTrait::creditAccount(
+                            $record->account_id,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+                    
+                    }
                     break;
                 case 12:
                     // do Pos Security Deposit'
-                    echo "Value 2";
+                    foreach ($data['records'] as $record) {
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks = "Pos Sales Revenue";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::debitAccount(
+                            1, //$record->agent_account,
+                            !is_numeric($record->debits) ? 0 : $record->debits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        // credit bank with debit amount
+                        AccountTrait::creditAccount(
+                            $record->account_id,
+                            !is_numeric($record->debits) ? 0 : $record->debits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+                    
+                    }
                     break;
                 case 14:
                     // do Funding'
-                    echo "Value 4";
+                    foreach ($data['records'] as $record) {
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks = "Funding";
+
+                        //credit agent wallet with debit amount
+                        AccountTrait::creditAccount(
+                            1, //$record->agent_account,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        // credit bank with debit amount
+                        AccountTrait::debitAccount(
+                            $record->account_id,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+                    
+                    }
                     break;
                 case 15:
                     // do Deduction'
-                    echo "Value 5";
+                    foreach ($data['records'] as $record) {
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks = "Funding";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::debitAccount(
+                            1, //$record->agent_account,
+                            !is_numeric($record->debits) ? 0 : $record->debits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        // credit bank with debit amount
+                        AccountTrait::creditAccount(
+                            $record->account_id,
+                            !is_numeric($record->debits) ? 0 : $record->debits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+                    
+                    }
                     break;
                 case 16:
                     // do wallet top-up'
-                    echo "Value 6";
+                    foreach ($data['records'] as $record) {
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks = "Funding";
+
+                        //credit agent wallet with credit amount
+                        AccountTrait::creditAccount(
+                            1, //$record->agent_account,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        // credit bank with credit amount
+                        AccountTrait::debitAccount(
+                            $record->account_id,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+                    
+                    }
                     break;
                 case 17:
                     // do Wallet Transfer'
-                    echo "Value 7";
+                    foreach ($data['records'] as $record) {
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks = "Funding";
+
+                        //credit agent wallet with credit amount
+                        AccountTrait::creditAccount(
+                            1, //$record->agent_account,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        // debit bank with credit amount
+                        AccountTrait::debitAccount(
+                            $record->account_id,
+                            !is_numeric($record->credits) ? 0 : $record->credits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::debitAccount(
+                            1, //$record->agent_account,
+                            !is_numeric($record->debits) ? 0 : $record->debits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+
+                        // credit bank with debit amount
+                        AccountTrait::creditAccount(
+                            $record->account_id,
+                            !is_numeric($record->debits) ? 0 : $record->debits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+                    
+                    }
                     break;
                 default:
                     // do something if $variable does not match any of the above cases

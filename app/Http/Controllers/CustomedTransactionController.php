@@ -32,6 +32,22 @@ class CustomedTransactionController extends Controller
             return date("Y-m-d");
         }
     }
+
+    public function updateRecord($record,$ref)
+    {
+
+        DB::table('automated_record')
+                        ->where('formatted_date', $record->formatted_date)
+                        ->where('account_id', $record->account_id)
+                        ->where('account_number', $record->account_number)
+                        ->where('transaction_type', $record->transaction_type)
+                        ->update([
+                            'ref_no' => $ref,
+                            'processed_at'=>date('Y-m-d'),
+                            'process_status' => 1
+		  
+		                ]);
+    }
     public function upload(Request $request)
     {
 
@@ -172,7 +188,7 @@ class CustomedTransactionController extends Controller
 
             $refno = AccountTrait::RefNo();
             $transactionDetails = DB::table('product_types_text')->get();
-            // dd($transactionDetails);
+    
 
             $mimes = array('application/vnd.ms-excel', 'text/csv', 'text/tsv');
             $file = $_FILES['file']['tmp_name'];
@@ -340,7 +356,7 @@ class CustomedTransactionController extends Controller
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->debits) ? 0 : $record->debits,
                             $ref,
                             $record->formatted_date,
@@ -351,7 +367,7 @@ class CustomedTransactionController extends Controller
 
                         // debit agent wallet with fees charge
                         AccountTrait::debitAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->fees) ? 0 : $record->fees,
                             $ref,
                             $record->formatted_date,
@@ -429,6 +445,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
+                       $this->updateRecord($record,$ref);;
                     }
 
                     break;
@@ -441,7 +458,7 @@ class CustomedTransactionController extends Controller
 
                         //debit agent wallet with debit amount
                         AccountTrait::creditAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->credits) ? 0 : $record->credits,
                             $ref,
                             $record->formatted_date,
@@ -452,7 +469,7 @@ class CustomedTransactionController extends Controller
 
                         // debit agent wallet with fees charge
                         AccountTrait::creditAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->fees) ? 0 : $record->fees,
                             $ref,
                             $record->formatted_date,
@@ -530,18 +547,19 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
+                        $this.updateRecord($record, $ref);
                     }
                     break;
                 case 3:
                     // do POS Withdrawal'
                     foreach ($data['records'] as $record) {
 
-                        $ref = AccountTrait::RefNo();
+                            $ref = AccountTrait::RefNo();
                         $remarks = "POS Transfer";
 
                         //debit agent wallet with debit amount
                         AccountTrait::creditAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->credits) ? 0 : $record->credits,
                             $ref,
                             $record->formatted_date,
@@ -552,7 +570,7 @@ class CustomedTransactionController extends Controller
 
                         // debit agent wallet with fees charge
                         AccountTrait::debitAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->fees) ? 0 : $record->fees,
                             $ref,
                             $record->formatted_date,
@@ -630,6 +648,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
+                       $this->updateRecord($record,$ref);
                     }
                     break;
                 case 4:
@@ -641,7 +660,7 @@ class CustomedTransactionController extends Controller
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->debits) ? 0 : $record->debits,
                             $ref,
                             $record->formatted_date,
@@ -652,7 +671,7 @@ class CustomedTransactionController extends Controller
 
                         // debit agent wallet with fees charge
                         AccountTrait::creditAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->fees) ? 0 : $record->fees,
                             $ref,
                             $record->formatted_date,
@@ -730,6 +749,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
+                       $this->updateRecord($record,$ref);
                     }
                     break;
                 case 5:
@@ -741,7 +761,7 @@ class CustomedTransactionController extends Controller
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->debits) ? 0 : $record->debits,
                             $ref,
                             $record->formatted_date,
@@ -831,6 +851,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
+                       $this->updateRecord($record,$ref);
                     }
                     break;
                 case 6:
@@ -842,7 +863,7 @@ class CustomedTransactionController extends Controller
 
                         //debit agent wallet with debit amount
                         AccountTrait::creditAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->credits) ? 0 : $record->credits,
                             $ref,
                             $record->formatted_date,
@@ -931,6 +952,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
+                       $this->updateRecord($record,$ref);
                     }
                     break;
                 case 7:
@@ -942,7 +964,7 @@ class CustomedTransactionController extends Controller
 
                         //debit agent wallet with debit amount
                         AccountTrait::creditAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->credits) ? 0 : $record->credits,
                             $ref,
                             $record->formatted_date,
@@ -961,7 +983,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-
+                       $this->updateRecord($record,$ref);
                     }
                     break;
                 case 8:
@@ -974,7 +996,7 @@ class CustomedTransactionController extends Controller
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->debits) ? 0 : $record->debits,
                             $ref,
                             $record->formatted_date,
@@ -993,6 +1015,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
+                       $this->updateRecord($record,$ref);
 
                     }
                     break;
@@ -1010,7 +1033,7 @@ class CustomedTransactionController extends Controller
 
                         //credit agent wallet with debit amount
                         AccountTrait::creditAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->credits) ? 0 : $record->credits,
                             $ref,
                             $record->formatted_date,
@@ -1029,7 +1052,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-
+                       $this->updateRecord($record,$ref);
                     }
                     break;
                     break;
@@ -1041,8 +1064,8 @@ class CustomedTransactionController extends Controller
                         $remarks = "Pos Sales Revenue";
 
                         //debit agent wallet with debit amount
-                        AccountTrait::debitAccount(
-                            1, //$record->agent_account,
+                        AccountTrait::creditAccount(
+                            $record->agent_account,
                             !is_numeric($record->credits) ? 0 : $record->credits,
                             $ref,
                             $record->formatted_date,
@@ -1052,7 +1075,7 @@ class CustomedTransactionController extends Controller
                         );
 
                         // credit bank with debit amount
-                        AccountTrait::creditAccount(
+                        AccountTrait::debitAccount(
                             $record->account_id,
                             !is_numeric($record->credits) ? 0 : $record->credits,
                             $ref,
@@ -1061,7 +1084,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-
+                       $this->updateRecord($record,$ref);
                     }
                     break;
                 case 12:
@@ -1073,7 +1096,7 @@ class CustomedTransactionController extends Controller
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->debits) ? 0 : $record->debits,
                             $ref,
                             $record->formatted_date,
@@ -1092,7 +1115,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-
+                       $this->updateRecord($record,$ref);
                     }
                     break;
                 case 14:
@@ -1104,7 +1127,7 @@ class CustomedTransactionController extends Controller
 
                         //credit agent wallet with debit amount
                         AccountTrait::creditAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->credits) ? 0 : $record->credits,
                             $ref,
                             $record->formatted_date,
@@ -1123,7 +1146,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-
+                       $this->updateRecord($record,$ref);
                     }
                     break;
                 case 15:
@@ -1135,7 +1158,7 @@ class CustomedTransactionController extends Controller
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->debits) ? 0 : $record->debits,
                             $ref,
                             $record->formatted_date,
@@ -1154,7 +1177,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-
+                       $this->updateRecord($record,$ref);
                     }
                     break;
                 case 16:
@@ -1162,11 +1185,11 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Funding";
+                        $remarks = "wallet top-up";
 
                         //credit agent wallet with credit amount
                         AccountTrait::creditAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->credits) ? 0 : $record->credits,
                             $ref,
                             $record->formatted_date,
@@ -1185,7 +1208,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-
+                       $this->updateRecord($record,$ref);;
                     }
                     break;
                 case 17:
@@ -1193,11 +1216,11 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Funding";
+                        $remarks = "Wallet Transfer";
 
                         //credit agent wallet with credit amount
                         AccountTrait::creditAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->credits) ? 0 : $record->credits,
                             $ref,
                             $record->formatted_date,
@@ -1219,7 +1242,7 @@ class CustomedTransactionController extends Controller
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
-                            1, //$record->agent_account,
+                            $record->agent_account,
                             !is_numeric($record->debits) ? 0 : $record->debits,
                             $ref,
                             $record->formatted_date,
@@ -1238,7 +1261,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-
+                        $this.updateRecord($record, $ref);
                     }
                     break;
                 default:
@@ -1252,5 +1275,7 @@ class CustomedTransactionController extends Controller
 
         return view('customedTransaction.process_uploads', $data);
     }
+
+
 
 }

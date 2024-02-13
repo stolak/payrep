@@ -259,9 +259,10 @@ class CustomedTransactionController extends Controller
                         
                             }
                         } catch (\Exception $e) {
-                            // Handle exceptions here
-                            // For example, log the exception or display an error message
-                            echo 'An error occurred: ' . $e->getMessage();
+                            
+                            DB::table('failed_agent_upload')->insertGetId([ 
+                                'account_number' => $filesop[2],
+                            ]);
                         }
                         
                     }
@@ -299,7 +300,7 @@ class CustomedTransactionController extends Controller
 
         $data['description'] = $request->input('description');
 
-        $data['records'] = DB::table('automated_record')->leftJoin('account_charts', 'account_charts.account_ref', 'automated_record.account_number')
+        $data['records'] = DB::table('automated_record')->leftJoin('account_charts', 'account_charts.accountno', 'automated_record.account_number')
             ->select(
                 DB::raw('sum(`debit`) as debits'),
                 DB::raw('sum(`credit`) as credits'),
@@ -318,9 +319,10 @@ class CustomedTransactionController extends Controller
                 'transaction_type'
             )
             ->where('transaction_type_id', '=', $data['transactionType'])
+            ->where('process_status', 0)
             ->groupBy('formatted_date', 'account_id', 'account_number', 'transaction_type')
             ->get();
-// dd( $data['records']);
+
         if (isset($_POST['process'])) {
 
             $defaultSetup = DB::table('account_setups')->get()->toArray();
@@ -553,7 +555,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                        $this.updateRecord($record, $ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 3:
@@ -800,7 +802,7 @@ class CustomedTransactionController extends Controller
                         $fees = $record->agent_commission + $record->bonus + $record->aggregator_commission + $record->aggregator_referral + $record->company_commission;
                         AccountTrait::debitAccount(
                             $record->account_id,
-                            fees,
+                            $fees,
                             $ref,
                             $record->formatted_date,
                             $remarks,
@@ -1267,7 +1269,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                        $this.updateRecord($record, $ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 default:

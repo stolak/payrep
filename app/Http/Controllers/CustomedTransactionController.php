@@ -207,57 +207,63 @@ class CustomedTransactionController extends Controller
                         $c = 1;
 
                     } else {
-
-                        $filesop4 = preg_replace('/[^\d.]/', '', $filesop[4]);
-
-                        $id = DB::table('agents')->insertGetId([
-                            'agent_name' => $filesop[1],
-                            'account_ref' => $filesop[2],
-                            'business_name' => $filesop[3],
-                            'opening_bal' => !is_numeric($filesop4) ? 0 : $filesop4,
-                            'as_at' => $filesop[5],
-
-                        ]);
-
-                        $subheadid = DB::table('setup_subheads')->where('id', 1)->value('subhead_id');
-                        $subhead = AccountTrait::getSubheadDetails($subheadid);
-                        if ($subhead) {
-                            $account = DB::table('account_charts')->insertGetId([
-                                'groupid' => $subhead->groupid,
-                                'headid' => $subhead->headid,
-                                'subheadid' => $subheadid,
-                                'accountno' => $filesop[2],
-                                'accountdescription' => $filesop[1],
-                                'status' => 1,
-                                'rank' => 0,
+                        try {
+                            $filesop4 = preg_replace('/[^\d.]/', '', $filesop[4]);
+                        
+                            $id = DB::table('agents')->insertGetId([
+                                'agent_name' => $filesop[1],
+                                'account_ref' => $filesop[2],
+                                'business_name' => $filesop[3],
+                                'opening_bal' => !is_numeric($filesop4) ? 0 : $filesop4,
+                                'as_at' => $filesop[5],
+                        
                             ]);
-                            DB::table('agents')->where('id', $id)->update([
-                                'account_id' => $account,
-                            ]);
-
-                            $ref = AccountTrait::RefNo();
-                            $accountPayable = 1;
-                            AccountTrait::debitAccount(
-                                $accountPayable,
-                                !is_numeric($filesop4) ? 0 : $filesop4,
-                                $ref,
-                                date('Y-m-d'),
-                                $filesop[1] . 'Opening Balance',
-                                Auth::User()->id,
-                                $ref
-                            );
-
-                            AccountTrait::creditAccount(
-                                $account,
-                                !is_numeric($filesop4) ? 0 : $filesop4,
-                                $ref,
-                                date('Y-m-d'),
-                                $filesop[1] . 'Opening Balance',
-                                Auth::User()->id,
-                                $ref);
-
+                        
+                            $subheadid = DB::table('setup_subheads')->where('id', 1)->value('subhead_id');
+                            $subhead = AccountTrait::getSubheadDetails($subheadid);
+                            if ($subhead) {
+                                $account = DB::table('account_charts')->insertGetId([
+                                    'groupid' => $subhead->groupid,
+                                    'headid' => $subhead->headid,
+                                    'subheadid' => $subheadid,
+                                    'accountno' => $filesop[2],
+                                    'accountdescription' => $filesop[1],
+                                    'status' => 1,
+                                    'rank' => 0,
+                                ]);
+                                DB::table('agents')->where('id', $id)->update([
+                                    'account_id' => $account,
+                                ]);
+                        
+                                $ref = AccountTrait::RefNo();
+                                $accountPayable = 1;
+                                AccountTrait::debitAccount(
+                                    $accountPayable,
+                                    !is_numeric($filesop4) ? 0 : $filesop4,
+                                    $ref,
+                                    date('Y-m-d'),
+                                    $filesop[1] . 'Opening Balance',
+                                    Auth::User()->id,
+                                    $ref
+                                );
+                        
+                                AccountTrait::creditAccount(
+                                    $account,
+                                    !is_numeric($filesop4) ? 0 : $filesop4,
+                                    $ref,
+                                    date('Y-m-d'),
+                                    $filesop[1] . 'Opening Balance',
+                                    Auth::User()->id,
+                                    $ref
+                                );
+                        
+                            }
+                        } catch (\Exception $e) {
+                            // Handle exceptions here
+                            // For example, log the exception or display an error message
+                            echo 'An error occurred: ' . $e->getMessage();
                         }
-
+                        
                     }
                 }
             }

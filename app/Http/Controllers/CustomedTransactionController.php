@@ -33,20 +33,20 @@ class CustomedTransactionController extends Controller
         }
     }
 
-    public function updateRecord($record,$ref)
+    public function updateRecord($record, $ref)
     {
 
         DB::table('automated_record')
-                        ->where('formatted_date', $record->formatted_date)
-                        ->where('account_id', $record->account_id)
-                        ->where('account_number', $record->account_number)
-                        ->where('transaction_type', $record->transaction_type)
-                        ->update([
-                            'ref_no' => $ref,
-                            'processed_at'=>date('Y-m-d'),
-                            'process_status' => 1
-		  
-		                ]);
+            ->where('formatted_date', $record->formatted_date)
+            ->where('account_id', $record->account_id)
+            ->where('account_number', $record->account_number)
+            ->where('transaction_type', $record->transaction_type)
+            ->update([
+                'ref_no' => $ref,
+                'processed_at' => date('Y-m-d'),
+                'process_status' => 1,
+
+            ]);
     }
     public function upload(Request $request)
     {
@@ -121,38 +121,47 @@ class CustomedTransactionController extends Controller
                             $filesop22 = preg_replace('/[^\d.]/', '', $filesop[22]);
 
                             $filesop23 = preg_replace('/[^\d.]/', '', $filesop[23]);
-                            DB::table('automated_record')->insert([
-                                'trans_date' => $filesop[0],
-                                'serial_number' => $filesop[1], // $transdate,
-                                'account_name' => $filesop[2],
-                                'account_number' => $filesop[3],
-                                'business_name' => $filesop[4],
-                                'card_account_number' => $filesop[5],
-                                'transaction_type' => $filesop[6],
-                                'service_provider' => $filesop[7],
-                                'bank' => $filesop[8],
-                                'beneficiaryname' => $filesop[9],
-                                'debit' => !is_numeric($filesop10) ? 0 : $filesop10,
-                                'credit' => !is_numeric($filesop11) ? 0 : $filesop11,
-                                'balance' => !is_numeric($filesop12) ? 0 : $filesop12,
-                                'fees' => !is_numeric($filesop13) ? 0 : $filesop13,
-                                'terminalID' => $filesop[14],
-                                'rrn' => $filesop[15],
-                                'status' => $filesop[16],
-                                'reference_number' => $filesop[17],
-                                'bank_charges' => !is_numeric($filesop18) ? 0 : $filesop18,
-                                'agent_commission' => !is_numeric($filesop19) ? 0 : $filesop19,
-                                'bonus' => !is_numeric($filesop20) ? 0 : $filesop20,
-                                'aggregator_commission' => !is_numeric($filesop21) ? 0 : $filesop21,
-                                'aggregator_referral' => !is_numeric($filesop22) ? 0 : $filesop22,
-                                'company_commission' => !is_numeric($filesop23) ? 0 : $filesop23,
-                                'process_status' => 0,
-                                'upload_title' => $data['description'],
-                                'upload_batch' => $refno,
-                                'transaction_type_id' => reset($matchingObjects)->id ?? 0,
-                                'account_id' => reset($matchingObjects)->account_id ?? 0,
-                                'formatted_date' => $this->formattedDate($filesop[0]),
-                            ]);
+                            try {
+                                DB::table('automated_record')->insert([
+                                    'trans_date' => $filesop[0],
+                                    'serial_number' => $filesop[1], // $transdate,
+                                    'account_name' => $filesop[2],
+                                    'account_number' => $filesop[3],
+                                    'business_name' => $filesop[4],
+                                    'card_account_number' => $filesop[5],
+                                    'transaction_type' => $filesop[6],
+                                    'service_provider' => $filesop[7],
+                                    'bank' => $filesop[8],
+                                    'beneficiaryname' => $filesop[9],
+                                    'debit' => !is_numeric($filesop10) ? 0 : $filesop10,
+                                    'credit' => !is_numeric($filesop11) ? 0 : $filesop11,
+                                    'balance' => !is_numeric($filesop12) ? 0 : $filesop12,
+                                    'fees' => !is_numeric($filesop13) ? 0 : $filesop13,
+                                    'terminalID' => $filesop[14],
+                                    'rrn' => $filesop[15],
+                                    'status' => $filesop[16],
+                                    'reference_number' => $filesop[17],
+                                    'bank_charges' => !is_numeric($filesop18) ? 0 : $filesop18,
+                                    'agent_commission' => !is_numeric($filesop19) ? 0 : $filesop19,
+                                    'bonus' => !is_numeric($filesop20) ? 0 : $filesop20,
+                                    'aggregator_commission' => !is_numeric($filesop21) ? 0 : $filesop21,
+                                    'aggregator_referral' => !is_numeric($filesop22) ? 0 : $filesop22,
+                                    'company_commission' => !is_numeric($filesop23) ? 0 : $filesop23,
+                                    'process_status' => 0,
+                                    'upload_title' => $data['description'],
+                                    'upload_batch' => $refno,
+                                    'transaction_type_id' => reset($matchingObjects)->id ?? 0,
+                                    'account_id' => reset($matchingObjects)->account_id ?? 0,
+                                    'formatted_date' => $this->formattedDate($filesop[0]),
+                                ]);
+                            } catch (\Exception $e) {
+                                DB::table('failed_transaction_upload')->insert([
+                                    'account_number' => $filesop[3],
+                                    'system_ref' => $refno,
+                                    'file_ref' => $filesop[17],
+                                ]);
+                            }
+
                         }
                     }
                 }
@@ -160,7 +169,7 @@ class CustomedTransactionController extends Controller
             return back()->with('message', 'record successfully updated.');
         }
 
-        $data['records'] = AutomatedUploadTrait::searchUpload('', '', '', '');
+        $data['records'] = AutomatedUploadTrait::searchUpload('', $data['fromDate'], $data['toDate'], 0);
 
         $data['transactionTypes'] = AutomatedUploadTrait::transactionTypes();
 
@@ -187,8 +196,12 @@ class CustomedTransactionController extends Controller
         if (isset($_POST['upload'])) {
 
             $refno = AccountTrait::RefNo();
-            $transactionDetails = DB::table('product_types_text')->get();
-    
+            $accountPayable = DB::table('account_setups')->where('id', 11)->value('account_id');
+
+            if (!DB::table('account_charts')->where('id', $accountPayable)->first()) {
+
+                return back()->with('error_message', ' Make sure setup account for agent payable');
+            }
 
             $mimes = array('application/vnd.ms-excel', 'text/csv', 'text/tsv');
             $file = $_FILES['file']['tmp_name'];
@@ -202,23 +215,23 @@ class CustomedTransactionController extends Controller
                 while (($filesop = fgetcsv($handle, 1000, ",")) !== false) {
 
                     $accountvalue = $filesop[2];
-
+                    $ref = AccountTrait::RefNo();
                     if ($c == 0 || $accountvalue == "") {
                         $c = 1;
 
                     } else {
                         try {
                             $filesop4 = preg_replace('/[^\d.]/', '', $filesop[4]);
-                        
+
                             $id = DB::table('agents')->insertGetId([
                                 'agent_name' => $filesop[1],
                                 'account_ref' => $filesop[2],
                                 'business_name' => $filesop[3],
                                 'opening_bal' => !is_numeric($filesop4) ? 0 : $filesop4,
                                 'as_at' => $filesop[5],
-                        
+
                             ]);
-                        
+
                             $subheadid = DB::table('setup_subheads')->where('id', 1)->value('subhead_id');
                             $subhead = AccountTrait::getSubheadDetails($subheadid);
                             if ($subhead) {
@@ -234,9 +247,7 @@ class CustomedTransactionController extends Controller
                                 DB::table('agents')->where('id', $id)->update([
                                     'account_id' => $account,
                                 ]);
-                        
-                                $ref = AccountTrait::RefNo();
-                                $accountPayable = 1;
+
                                 AccountTrait::debitAccount(
                                     $accountPayable,
                                     !is_numeric($filesop4) ? 0 : $filesop4,
@@ -246,7 +257,7 @@ class CustomedTransactionController extends Controller
                                     Auth::User()->id,
                                     $ref
                                 );
-                        
+
                                 AccountTrait::creditAccount(
                                     $account,
                                     !is_numeric($filesop4) ? 0 : $filesop4,
@@ -256,15 +267,18 @@ class CustomedTransactionController extends Controller
                                     Auth::User()->id,
                                     $ref
                                 );
-                        
+
                             }
                         } catch (\Exception $e) {
-                            
-                            DB::table('failed_agent_upload')->insertGetId([ 
+
+                            DB::table('failed_agent_upload')->insertGetId([
                                 'account_number' => $filesop[2],
+                                'system_ref' => $refno,
                             ]);
+                            DB::table('account_transactions')->where('ref', '=', $ref)->delete();
+
                         }
-                        
+
                     }
                 }
             }
@@ -319,7 +333,7 @@ class CustomedTransactionController extends Controller
                 'transaction_type'
             )
             ->where('transaction_type_id', '=', $data['transactionType'])
-            ->where('process_status', 0)
+            ->where('process_status', 0)->where('formatted_date', ">=", $data['fromDate'])->where('formatted_date', "<=", $data['toDate'])
             ->groupBy('formatted_date', 'account_id', 'account_number', 'transaction_type')
             ->get();
 
@@ -453,7 +467,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);;
+                        $this->updateRecord($record, $ref);
                     }
 
                     break;
@@ -562,7 +576,7 @@ class CustomedTransactionController extends Controller
                     // do POS Withdrawal'
                     foreach ($data['records'] as $record) {
 
-                            $ref = AccountTrait::RefNo();
+                        $ref = AccountTrait::RefNo();
                         $remarks = "POS Transfer";
 
                         //debit agent wallet with debit amount
@@ -656,7 +670,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 4:
@@ -757,7 +771,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 5:
@@ -859,7 +873,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 6:
@@ -960,7 +974,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 7:
@@ -991,7 +1005,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 8:
@@ -1023,7 +1037,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
 
                     }
                     break;
@@ -1060,10 +1074,10 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
-                    break;
+
                 case 11:
                     // do Pos Sales Revenue'
                     foreach ($data['records'] as $record) {
@@ -1092,7 +1106,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 12:
@@ -1123,7 +1137,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 14:
@@ -1154,7 +1168,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 15:
@@ -1185,7 +1199,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 16:
@@ -1216,7 +1230,7 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                       $this->updateRecord($record,$ref);;
+                        $this->updateRecord($record, $ref);
                     }
                     break;
                 case 17:
@@ -1276,14 +1290,12 @@ class CustomedTransactionController extends Controller
                     // do something if $variable does not match any of the above cases
                     echo "Default Value";
             }
-
+            return back()->with('message', 'record successfully process.');
         }
 
         $data['transactionTypes'] = AutomatedUploadTrait::transactionTypes();
 
         return view('customedTransaction.process_uploads', $data);
     }
-
-
 
 }

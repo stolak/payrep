@@ -22,12 +22,12 @@
         <!-- include notoifcation -->
         @include('_partialView.nofication')
         <!-- /include notoifcation -->
-
+        <form method="post" name="mainform" id="mainform">
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <form method="post" name="mainform" id="mainform">
+                       
                             {{ csrf_field() }}
                             <div class="text-right">
 
@@ -69,9 +69,9 @@
 
                             </div>
                             <div class="text-right">
-                                <button type="submit" name="process" class="btn btn-primary">Search</button>
+                                <button type="submit"  class="btn btn-primary">Search</button>
                             </div>
-                        </form>
+                        
                     </div>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                                         <th rowspan="1">Account Name</th>
                                         <th rowspan="1">Account Number</th>
                                         <th rowspan="1">Trans. Type</th>
-                                        
+
                                         <th rowspan="1">Debit </th>
                                         <th rowspan="1">Credit</th>
                                         <th rowspan="1">Fees</th>
@@ -151,8 +151,8 @@
                                         <td>
                                             {{$list->transaction_type}}
                                         </td>
-                                        
-                                       
+
+
                                         <td style="text-align: right;">
                                             {{number_format($list->debits,2, '.', ',')}}
 
@@ -164,7 +164,7 @@
                                             {{number_format($list->fees,2, '.', ',')}}
                                         </td>
 
-                                        
+
                                         <td>
                                             {{number_format($list->bank_charges,2, '.', ',')}}
                                         </td>
@@ -191,20 +191,20 @@
                                             Total
                                         </td>
                                         <td>
-                                          
-                                        </td>
-                                        <td>
-                                           
-                                        </td>
-                                        <td>
-                                           
 
                                         </td>
                                         <td>
-                                            
+
                                         </td>
-                                        
-                                       
+                                        <td>
+
+
+                                        </td>
+                                        <td>
+
+                                        </td>
+
+
                                         <td style="text-align: right;">
                                             {{number_format($sum_debits,2, '.', ',')}}
 
@@ -216,7 +216,7 @@
                                             {{number_format($sum_fees,2, '.', ',')}}
                                         </td>
 
-                                        
+
                                         <td>
                                             {{number_format($sum_bank_charges,2, '.', ',')}}
                                         </td>
@@ -240,13 +240,17 @@
 
                                 </tbody>
                             </table>
+                          
                         </div>
                     </div>
                 </div>
                 <!-- /List of economic code -->
-
+                            <div class="text-right">
+                                <button type="submit" name="process" class="btn btn-primary">Process</button>
+                            </div>
             </div>
         </div>
+</form>
     </div>
 
 

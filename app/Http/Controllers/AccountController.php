@@ -63,12 +63,20 @@ class AccountController extends Controller
 
 
 if ( isset($_POST['delete']) ) {
+
+    if (DB::table('account_charts')->where('subheadid',$request->input('id'))->first()) {
+        return back()->with('error_message','This account already exist in an account. Hence, record cannot be deleted!'  );
+    }
+    DB::table('account_subheads')->where('id', '=', $request->input('id'))->delete();
+
     if (Loan::where('customer_id',$request->input('id'))->first()) {
         return back()->with('error_message','Client Already exist with transaction. Hence, record cannot be deleted!'  );
     }
     Customer::destroy($request->input('id'));
     return back()->with('message', ' Record successfully trashed.');
 }
+
+
 
     $data['accountHeads']= AccountHead::all();
     $data['subaccounts']= AccountSubhead::where('headid', $request->input('accountHead'))
@@ -116,10 +124,12 @@ if ( isset($_POST['delete']) ) {
 
 
 if ( isset($_POST['delete']) ) {
-    if (Loan::where('customer_id',$request->input('id'))->first()) {
-        return back()->with('error_message','Client Already exist with transaction. Hence, record cannot be deleted!'  );
+    if (DB::table('account_transactions')->where('accountid',$request->input('id'))->first()) {
+        return back()->with('error_message','This account already exist in a transaction. Hence, record cannot be deleted!'  );
     }
-    Customer::destroy($request->input('id'));
+    DB::table('account_charts')->where('id', '=', $request->input('id'))->delete();
+
+    
     return back()->with('message', ' Record successfully trashed.');
 }
 
@@ -127,7 +137,7 @@ if ( isset($_POST['delete']) ) {
     $data['subaccounts']= AccountSubhead::where('headid', $data['accountHead'])
     ->leftJoin('account_heads', 'account_subheads.headid', '=', 'account_heads.id')
     ->select('account_subheads.*', 'account_heads.accounthead')->get();
-     //dd($request->input('accountHead'));
+
     $data['accounts']= AccountChart::leftJoin('account_heads', 'account_charts.headid', '=', 'account_heads.id')
     ->leftJoin('account_subheads', 'account_charts.subheadid', '=', 'account_subheads.id')
     ->select('account_charts.*', 'account_subheads.subhead', 'account_heads.accounthead')->get();

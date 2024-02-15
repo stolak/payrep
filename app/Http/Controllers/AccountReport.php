@@ -425,20 +425,22 @@ class AccountReport extends Controller {
        	$data['todate']=$request->input('todate');
        	if($data['todate']==""){$data['todate']=date("Y-m-d");}
         if($data['fromdate']==""){$data['fromdate']=date("Y-m-d");}
+
         if ( isset( $_POST['del'] ) ) {
 
-        $del=$request->input('deleteid');
-        //dd($del);
-        $trans_date=db::table('account_transactions')->where('ref',$del)->value('transdate');
+            $del=$request->input('deleteid');
+            //dd($del);
+            $trans_date=db::table('account_transactions')->where('ref',$del)->value('transdate');
 
-        if(db::table('tblfinancial_end')->where('year_end_date','>=',$trans_date)->first())return back()->with('error_message',' This year perid has already been closed. Hence the transaction not deletable' );
+            if(db::table('financial_ends')->where('year_end_date','>=',$trans_date)->first())return back()->with('error_message',' This year perid has already been closed. Hence the transaction not deletable' );
 
-        DB::delete("DELETE FROM `account_transactions` WHERE `ref`='$del'");
-        DB::delete("DELETE FROM `tblbatch_post_temp` WHERE `ref`='$del'");
-        DB::delete("DELETE FROM `pettyhandling_transactions` WHERE `ref`='$del'");
-        DB::delete("DELETE FROM `temp_journal_transfer` WHERE `ref`='$del'");
-         return back()->with('message',' Record successfully trashed.'  );
-    }
+            DB::delete("DELETE FROM `batch_post_temps` WHERE `ref`='$del'");
+
+            DB::delete("DELETE FROM `account_transactions` WHERE `ref`='$del'");
+            DB::delete("DELETE FROM `pettyhandling_transactions` WHERE `ref`='$del'");
+            DB::delete("DELETE FROM `temp_journal_transfer` WHERE `ref`='$del'");
+            return back()->with('message',' Record successfully trashed.'  );
+        }
         $data['RefBatch']= AccountTrait::refBatch();
         $data['Trans_Summary'] = AccountTrait::trans_Summary($data['fromdate'],$data['todate'],$data['ref']);
 

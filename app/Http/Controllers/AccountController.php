@@ -8,6 +8,7 @@ use DB;
 use Auth;
 use Carbon\Carbon;
 use DateTime;
+use App\Models\Loan;
 use Illuminate\Support\Facades\Input;
 use Session;
 use Illuminate\Support\Facades\URL;

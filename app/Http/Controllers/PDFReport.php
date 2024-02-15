@@ -34,25 +34,6 @@ class PDFReport extends Controller
    }
 
 
-
-    public function AccountStatements(Request $request)
-    {
-            $data['acctid']=$request->input('acctid');
-            if($data['acctid']==''){$data['acctid']=Session::get('acctid');}
-            Session(['acctid' => $data['acctid']]);
-            $data['accountname']= AccountTrait::AccountName($data['acctid']);
-            $data['fromdate']=$request->input('fromdate');
-            $data['todate']=$request->input('todate');
-            if($data['todate']==""){$data['todate']=date("Y-m-d");}
-            if($data['fromdate']==""){$data['fromdate']=date("Y-m-d");}
-            $data['TrialBal'] = AccountTrait::trialBal($data['fromdate'],$data['todate']);
-            $data['AccountStatementRunningTotal'] = AccountTrait::AccountStatementRunningTotal($data['acctid'],$data['fromdate'],$data['todate']);
-            //return view('AccountReport.accountstatement', $data);
-            $pdf = PDF::loadView('PDFReport.accountstatement', $data)->setPaper('a4', 'landscape');
-            return $pdf->download(env('Coy_download_Ext').'Account_transaction_'.date("Y-m-d").'.pdf');
-    }
-
-
     public function TrialBalance(Request $request){
         //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
        	$data['fromdate']=$request->input('fromdate');
@@ -125,18 +106,6 @@ class PDFReport extends Controller
    }
 
 
-   public function Transaction_Summary(Request $request){
-        //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
-       	$data['fromdate']=$request->input('fromdate');
-       	$data['todate']=$request->input('todate');
-       	if($data['todate']==""){$data['todate']=date("Y-m-d");}
-        if($data['fromdate']==""){$data['fromdate']=date("Y-m-d");}
-        $data['Trans_Summary'] = $this->Trans_Summary($data['fromdate'],$data['todate']);
-    	$pdf = PDF::loadView('PDFReport.transaction_summary', $data);
-        return $pdf->download(env('Coy_download_Ext').'Summary_trans_'.$data['fromdate'].'_'.$data['todate'].'.pdf');
-   }
-
-
    public function RefTransaction($ref = null){
        	$data['ref']=$ref;
         $data['RefTrans'] = DB::Select("SELECT *
@@ -165,5 +134,47 @@ class PDFReport extends Controller
         $pdf = PDF::loadView('PDFReport.chart_account', $data)->setPaper('a4', 'landscape');;
         return $pdf->download(env('Coy_download_Ext').'chart_account_'.date("Y-m-d").'.pdf');
    }
+
+
+   /////////////////////////////////////// adams ////////////////////////////////
+
+   public function AccountStatements(Request $request)
+   {
+    set_time_limit(120);
+
+    $data['acctid'] = $request->input('acctid', Session::get('acctid'));
+    Session(['acctid' => $data['acctid']]);
+
+    $data['accountname'] = AccountTrait::AccountName($data['acctid']);
+
+    $data['fromdate'] = $request->input('fromdate', date("Y-m-d"));
+    $data['todate'] = $request->input('todate', date("Y-m-d"));
+
+    $data['TrialBal'] = AccountTrait::trialBal($data['fromdate'], $data['todate']);
+
+    $data['AccountStatementRunningTotal'] = AccountTrait::AccountStatementRunningTotal($data['acctid'], $data['fromdate'], $data['todate']);
+
+    $pdf = PDF::loadView('PDFReport.accountstatement', $data)->setPaper('a4', 'landscape');
+
+    return $pdf->download(env('Coy_download_Ext') . 'Account_transaction_' . date("Y-m-d") . '.pdf');
+    }
+
+    public function Transaction_Summary(Request $request){
+
+        $data['fromdate']=$request->input('fromdate');
+
+        $data['todate']=$request->input('todate');
+
+        $data['ref']=$request->input('ref');
+
+        if($data['todate']==""){$data['todate']=date("Y-m-d");}
+
+        if($data['fromdate']==""){$data['fromdate']=date("Y-m-d");}
+
+        $data['Trans_Summary'] = AccountTrait::trans_Summary($data['fromdate'], $data['todate'], $data['ref']);
+
+    	$pdf = PDF::loadView('PDFReport.transaction_summary', $data)->setPaper('a4', 'landscape');
+        return $pdf->download(env('Coy_download_Ext').'Summary_trans_'.$data['fromdate'].'_'.$data['todate'].'.pdf');
+    }
 
 }//end class

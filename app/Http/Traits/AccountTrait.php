@@ -10,9 +10,9 @@ trait AccountTrait
     {
 
         if($amount==0) return null;
-        
+
 	    $accountdetails = AccountTrait::getAccountDetails($accountid);
-        
+
 	    return DB::table('account_transactions')->insert([
             'groupid' => $accountdetails->groupid ,
             'headid' => $accountdetails->headid ,
@@ -308,5 +308,59 @@ trait AccountTrait
             ORDER BY description"
         ));
     }
+
+    public function refBatch() {
+        $result = DB::table('account_transactions')
+        ->select('ref', DB::raw('MAX(manual_ref) as manual_ref'))
+        ->groupBy('ref')
+        ->orderBy('ref', 'asc')
+        ->get();
+
+    return $result;
+        // return DB::Select("SELECT `ref`, `transdate` , MAX(`manual_ref`) as `manual_ref` FROM `account_transactions` GROUP BY `ref` ORDER BY `manual_ref`");
+    }
+
+
+    // Public function trans_Summary($from,$to,$ref=null) {
+	//     $timedate= "(DATE_FORMAT(`transdate`,'%Y-%m-%d') BETWEEN '$from' AND '$to')";
+	//     //$timedate=1;
+	//     if($ref) return DB::Select("SELECT *, sum(`debit`) as sum_total FROM `account_transactions` WHERE  `ref`='$ref'  and is_trial= 1   group by `ref` order by  `transdate`");
+	//     return DB::Select("SELECT *, sum(`debit`) as sum_total FROM `account_transactions` WHERE  $timedate  and is_trial= 1   group by `ref` order by  `transdate`");
+
+	// }
+
+    public function trans_Summary($from, $to, $ref = null) {
+        $timedate = "(DATE_FORMAT(`transdate`, '%Y-%m-%d') BETWEEN '$from' AND '$to')";
+
+        // if ($ref) {
+        //     return DB::Select("SELECT `transdate`, `manual_ref`, `ref`, `remarks`, `createdat`, SUM(`debit`) as sum_total FROM `account_transactions` WHERE  `ref`='$ref' AND is_trial= 1   GROUP BY `ref`, `transdate`, `manual_ref`, `remarks`, `createdat` ORDER BY  `transdate`");
+        // } else {
+        //     return DB::Select("SELECT `transdate`, `manual_ref`, `ref`, `remarks`, `createdat`, SUM(`debit`) as sum_total FROM `account_transactions` WHERE  $timedate AND is_trial= 1   GROUP BY `ref`, `transdate`, `manual_ref`, `remarks`, `createdat` ORDER BY  `transdate`");
+        // }
+
+        $query = DB::table('account_transactions')
+        ->select(
+            DB::raw('MAX(transdate) as transdate'),
+            'ref',
+            DB::raw('MAX(manual_ref) as manual_ref'),
+            DB::raw('MAX(remarks) as remarks'),
+            DB::raw('MAX(createdat) as createdat'),
+            DB::raw('SUM(debit) as sum_total')
+        )
+        ->where('is_trial', 1);
+
+        if ($ref) {
+            $query->where('ref', $ref)
+                ->groupBy('ref') // Exclude transdate from GROUP BY
+                ->orderBy('transdate');
+        } else {
+            $query->whereBetween(DB::raw("DATE_FORMAT(transdate, '%Y-%m-%d')"), [$from, $to])
+                ->groupBy('ref')
+                ->orderBy('transdate');
+        }
+
+        return $query->get();
+    }
+
 
 }

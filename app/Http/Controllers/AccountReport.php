@@ -92,29 +92,7 @@ class AccountReport extends Controller {
    }
 
 
-   public function Transaction_Summary(Request $request){
-        //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
-        $data['ref']=$request->input('ref');
-       	$data['fromdate']=$request->input('fromdate');
-       	$data['todate']=$request->input('todate');
-       	if($data['todate']==""){$data['todate']=date("Y-m-d");}
-        if($data['fromdate']==""){$data['fromdate']=date("Y-m-d");}
-        if ( isset( $_POST['del'] ) ) {
 
-        $del=$request->input('deleteid');
-        //dd($del);
-        $trans_date=db::table('tblaccount_transaction')->where('ref',$del)->value('transdate');
-        if(db::table('tblfinancial_end')->where('year_end_date','>=',$trans_date)->first())return back()->with('error_message',' This year perid has already been closed. Hence the transaction not deletable'  );
-        DB::delete("DELETE FROM `tblaccount_transaction` WHERE `ref`='$del'");
-        DB::delete("DELETE FROM `tblbatch_post_temp` WHERE `ref`='$del'");
-        DB::delete("DELETE FROM `tblpettyhandling_transaction` WHERE `ref`='$del'");
-        DB::delete("DELETE FROM `temp_journal_transfer` WHERE `ref`='$del'");
-         return back()->with('message',' Record successfully trashed.'  );
-    }
-        $data['RefBatch']=$this->RefBatch();
-        $data['Trans_Summary'] = $this->Trans_Summary($data['fromdate'],$data['todate'],$data['ref']);
-    	return view('AccountReport.transaction_summary', $data);
-   }
 
 
    public function RefTransaction($ref = null){
@@ -126,31 +104,6 @@ class AccountReport extends Controller {
     	return view('AccountReport.ref_trans', $data);
    }
 
-
-   public function RefTransactionPost(Request $request){
-       	$data['ref']=$request->input('ref');
-       	$ref=$data['ref'];
-
-       	if ( isset( $_POST['update'] ) ) {
-       	    $this->validate($request, ['account'=> 'required',]);
-       	    $accountdetails=$this->FetchAccountCodes($request->input('account'));
-       	    if(!$accountdetails)return back()->with('error_message',' Record not updated! Invalid Account selected'  );
-       	    DB::table('tblaccount_transaction')->where('id',$request->input('id'))->update([
-    	          'groupid' => $accountdetails->groupid ,
-    	          'headid' => $accountdetails->headid ,
-    	          'subheadid' => $accountdetails->subheadid ,
-    	          'accountid' =>$request->input('account') ,
-    	          'accountcode' => $accountdetails->accountno ,
-    	        ]);
-       	}
-       	$data['RefBatch']=$this->RefBatch();
-       	$data['AccountList'] = $this->AccountList('','');
-        $data['RefTrans'] = DB::Select("SELECT *
-        ,(SELECT `accountdescription` FROM `tblaccountchart` WHERE `tblaccountchart`.`id`=accountid) as accountName
-        FROM `tblaccount_transaction` WHERE `ref`='$ref'");
-        //dd( $data['RefTrans']);
-    	return view('AccountReport.ref_trans2', $data);
-   }
 
 
    public function General_Transaction(Request $request){
@@ -465,5 +418,59 @@ class AccountReport extends Controller {
         return view('AccountReport.accountstatement', $data);
     }
 
+    public function Transaction_Summary(Request $request){
+        //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
+        $data['ref']=$request->input('ref');
+       	$data['fromdate']=$request->input('fromdate');
+       	$data['todate']=$request->input('todate');
+       	if($data['todate']==""){$data['todate']=date("Y-m-d");}
+        if($data['fromdate']==""){$data['fromdate']=date("Y-m-d");}
+        if ( isset( $_POST['del'] ) ) {
+
+        $del=$request->input('deleteid');
+        //dd($del);
+        $trans_date=db::table('account_transactions')->where('ref',$del)->value('transdate');
+
+        if(db::table('tblfinancial_end')->where('year_end_date','>=',$trans_date)->first())return back()->with('error_message',' This year perid has already been closed. Hence the transaction not deletable' );
+
+        DB::delete("DELETE FROM `account_transactions` WHERE `ref`='$del'");
+        DB::delete("DELETE FROM `tblbatch_post_temp` WHERE `ref`='$del'");
+        DB::delete("DELETE FROM `pettyhandling_transactions` WHERE `ref`='$del'");
+        DB::delete("DELETE FROM `temp_journal_transfer` WHERE `ref`='$del'");
+         return back()->with('message',' Record successfully trashed.'  );
+    }
+        $data['RefBatch']= AccountTrait::refBatch();
+        $data['Trans_Summary'] = AccountTrait::trans_Summary($data['fromdate'],$data['todate'],$data['ref']);
+
+        // dd($data);
+    	return view('AccountReport.transaction_summary', $data);
+   }
+
+
+   public function RefTransactionPost(Request $request){
+    $data['ref']=$request->input('ref');
+    $ref=$data['ref'];
+
+    if ( isset( $_POST['update'] ) ) {
+        $this->validate($request, ['account'=> 'required',]);
+        $accountdetails=$this->FetchAccountCodes($request->input('account'));
+        if(!$accountdetails)return back()->with('error_message',' Record not updated! Invalid Account selected'  );
+        DB::table('tblaccount_transaction')->where('id',$request->input('id'))->update([
+           'groupid' => $accountdetails->groupid ,
+           'headid' => $accountdetails->headid ,
+           'subheadid' => $accountdetails->subheadid ,
+           'accountid' =>$request->input('account') ,
+           'accountcode' => $accountdetails->accountno ,
+         ]);
+    }
+    $data['RefBatch']= AccountTrait::refBatch();
+    $data['AccountList'] = AccountChart::all();
+    $data['RefTrans'] = DB::Select("SELECT *
+    ,(SELECT `accountdescription` FROM `account_charts` WHERE `account_charts`.`id`=accountid) as accountName
+    FROM `account_transactions` WHERE `ref`='$ref'");
+
+    //dd( $data['RefTrans']);
+    return view('AccountReport.ref_trans2', $data);
+}
 
 }

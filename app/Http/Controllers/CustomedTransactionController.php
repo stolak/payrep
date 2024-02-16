@@ -211,7 +211,7 @@ class CustomedTransactionController extends Controller
 
                 $handle = fopen($file, "r");
                 $c = 0;
-
+                $subheadid = DB::table('setup_subheads')->where('id', 3)->value('subhead_id');
                 while (($filesop = fgetcsv($handle, 1000, ",")) !== false) {
 
                     $accountvalue = $filesop[2];
@@ -232,7 +232,7 @@ class CustomedTransactionController extends Controller
 
                             ]);
 
-                            $subheadid = DB::table('setup_subheads')->where('id', 1)->value('subhead_id');
+                           
                             $subhead = AccountTrait::getSubheadDetails($subheadid);
                             if ($subhead) {
                                 $account = DB::table('account_charts')->insertGetId([

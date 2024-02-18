@@ -18,6 +18,7 @@ class CustomedTransactionController extends Controller
     public function __construct()
     {
         define("REGEX", "/[^\d.]/");
+        set_time_limit(0);
     }
 
     public function formattedDate($dateStr)
@@ -196,9 +197,20 @@ class CustomedTransactionController extends Controller
         if (isset($_POST['upload'])) {
 
             $refno = AccountTrait::RefNo();
-            $accountPayable = DB::table('account_setups')->where('id', 11)->value('account_id');
+            $agentPayable = DB::table('account_setups')
+            ->where('id', 11)
+            ->value('account_id');
+            $agentWalletId = DB::table('account_setups')
+            ->where('id', 12)
+            ->value('account_id');
+            $agentWallet =DB::table('account_charts')->where('id', $agentWalletId)->first();
+            
+            $confirmagentPayable =DB::table('account_charts')->where('id', $agentPayable)->first();
+            if (!$agentWallet) {
 
-            if (!DB::table('account_charts')->where('id', $accountPayable)->first()) {
+                return back()->with('error_message', ' Make sure setup account for agent wallet');
+            }
+            if (!$confirmagentPayable) {
 
                 return back()->with('error_message', ' Make sure setup account for agent payable');
             }
@@ -233,12 +245,13 @@ class CustomedTransactionController extends Controller
                             ]);
 
                            
-                            $subhead = AccountTrait::getSubheadDetails($subheadid);
-                            if ($subhead) {
-                                $account = DB::table('account_charts')->insertGetId([
-                                    'groupid' => $subhead->groupid,
-                                    'headid' => $subhead->headid,
-                                    'subheadid' => $subheadid,
+
+                           
+                                $account = DB::table('account_charts_sub')->insertGetId([
+                                    'groupid' => $agentWallet->groupid,
+                                    'chart_id' => $agentWallet->id,
+                                    'headid' => $agentWallet->headid,
+                                    'subheadid' => $agentWallet->subheadid,
                                     'accountno' => $filesop[2],
                                     'accountdescription' => $filesop[1],
                                     'status' => 1,
@@ -249,7 +262,7 @@ class CustomedTransactionController extends Controller
                                 ]);
 
                                 AccountTrait::debitAccount(
-                                    $accountPayable,
+                                    $agentPayable,
                                     !is_numeric($filesop4) ? 0 : $filesop4,
                                     $ref,
                                     date('Y-m-d'),
@@ -259,16 +272,17 @@ class CustomedTransactionController extends Controller
                                 );
 
                                 AccountTrait::creditAccount(
-                                    $account,
+                                    $agentWalletId,
                                     !is_numeric($filesop4) ? 0 : $filesop4,
                                     $ref,
                                     date('Y-m-d'),
                                     $filesop[1] . 'Opening Balance',
                                     Auth::User()->id,
-                                    $ref
+                                    $ref,
+                                    $account
                                 );
 
-                            }
+                            
                         } catch (\Exception $e) {
 
                             DB::table('failed_agent_upload')->insertGetId([
@@ -276,6 +290,7 @@ class CustomedTransactionController extends Controller
                                 'system_ref' => $refno,
                             ]);
                             DB::table('account_transactions')->where('ref', '=', $ref)->delete();
+                            // dd($e);
 
                         }
 
@@ -314,7 +329,7 @@ class CustomedTransactionController extends Controller
 
         $data['description'] = $request->input('description');
 
-        $data['records'] = DB::table('automated_record')->leftJoin('account_charts', 'account_charts.accountno', 'automated_record.account_number')
+        $data['records'] = DB::table('automated_record')->leftJoin('account_charts_sub', 'account_charts_sub.accountno', 'automated_record.account_number')
             ->select(
                 DB::raw('sum(`debit`) as debits'),
                 DB::raw('sum(`credit`) as credits'),
@@ -326,8 +341,11 @@ class CustomedTransactionController extends Controller
                 DB::raw('sum(`aggregator_referral`) as aggregator_referral'),
                 DB::raw('sum(`company_commission`) as company_commission'),
                 'account_number',
-                DB::raw('MAX(`account_name`) as account_name'), // Aggregating account_name
-                DB::raw('MAX(`account_charts`.`id`) as agent_account'),
+                DB::raw('MAX(`account_name`) as account_name'), 
+                DB::raw('MAX(`account_charts_sub`.`chart_id`) as agent_account'),
+                DB::raw('MAX(`account_charts_sub`.`id`) as agent_account_sub'),
+                
+
                 'account_id',
                 'formatted_date',
                 'transaction_type'
@@ -368,6 +386,12 @@ class CustomedTransactionController extends Controller
             });
             $company_commission = reset($company_commission1)->account_id ?? 0;
 
+
+            $stamp_duty_account1 = array_filter($defaultSetup, function ($obj) {
+                return $obj->id === 13;
+            });
+            $stamp_duty_account = reset($stamp_duty_account1)->account_id ?? 0;
+
             switch ($data['transactionType']) {
                 case 1:
                     // do Bank Transfer'
@@ -384,7 +408,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // debit agent wallet with fees charge
@@ -395,7 +420,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
                         // credit bank with debit amount
                         AccountTrait::creditAccount(
@@ -486,7 +512,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // debit agent wallet with fees charge
@@ -497,7 +524,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
                         // credit bank with debit amount
                         AccountTrait::debitAccount(
@@ -587,7 +615,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // debit agent wallet with fees charge
@@ -598,7 +627,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
                         // credit bank with debit amount
                         AccountTrait::debitAccount(
@@ -660,16 +690,44 @@ class CustomedTransactionController extends Controller
                             Auth::User()->id,
                             $ref
                         );
-                        // credit company_commission payable
-                        AccountTrait::creditAccount(
-                            $company_commission,
-                            !is_numeric($record->company_commission) ? 0 : $record->company_commission,
-                            $ref,
-                            $record->formatted_date,
-                            $remarks,
-                            Auth::User()->id,
-                            $ref
-                        );
+                        // Handle logic for stamp duuty
+                        $stamp_duty= 0;
+                        $company_commision_amount= $record->company_commission;
+                        if($record->credits >= 10000){
+                            $stamp_duty= 50;
+                            $company_commision_amount = $record->fees-($record->aggregator_referral + $record->bank_charges+$record->agent_commission+$record->bonus+$record->bonus+$record->aggregator_commission);
+                            AccountTrait::creditAccount(
+                                $stamp_duty_account,
+                                $stamp_duty,
+                                $ref,
+                                $record->formatted_date,
+                                $remarks,
+                                Auth::User()->id,
+                                $ref
+                            );
+                        }
+ // credit company_commission payable
+                            if($company_commision_amount>0){
+                                AccountTrait::creditAccount(
+                                    $company_commission,
+                                    $company_commision_amount,
+                                    $ref,
+                                    $record->formatted_date,
+                                    $remarks,
+                                    Auth::User()->id,
+                                    $ref
+                                );
+                            } else{
+                                AccountTrait::debitAccount(
+                                    $company_commission,
+                                    abs($company_commision_amount),
+                                    $ref,
+                                    $record->formatted_date,
+                                    $remarks,
+                                    Auth::User()->id,
+                                    $ref
+                                );
+                            }
                         $this->updateRecord($record, $ref);
                     }
                     break;
@@ -688,7 +746,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // debit agent wallet with fees charge
@@ -699,7 +758,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
                         // credit bank with debit amount
                         AccountTrait::creditAccount(
@@ -789,7 +849,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // credit bank with debit amount
@@ -891,7 +952,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // credit bank with debit amount
@@ -992,7 +1054,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // credit bank with debit amount
@@ -1024,7 +1087,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // credit bank with debit amount
@@ -1044,7 +1108,36 @@ class CustomedTransactionController extends Controller
 
                 case 9:
                     // do Settlement'
-                    echo "Value 3";
+                    foreach ($data['records'] as $record) {
+
+                        $ref = AccountTrait::RefNo();
+                        $remarks = "Settlement";
+
+                        //debit agent wallet with debit amount
+                        AccountTrait::debitAccount(
+                            $record->agent_account,
+                            !is_numeric($record->debits) ? 0 : $record->debits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref,
+                            $record->agent_account_sub
+                        );
+
+                        // credit bank with debit amount
+                        AccountTrait::creditAccount(
+                            $record->account_id,
+                            !is_numeric($record->debits) ? 0 : $record->debits,
+                            $ref,
+                            $record->formatted_date,
+                            $remarks,
+                            Auth::User()->id,
+                            $ref
+                        );
+                        $this->updateRecord($record, $ref);
+
+                    }
                     break;
                 case 10:
                     // do Device Retrieval'
@@ -1061,7 +1154,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // debit bank with debit amount
@@ -1093,7 +1187,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // credit bank with debit amount
@@ -1124,7 +1219,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // credit bank with debit amount
@@ -1155,7 +1251,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // credit bank with debit amount
@@ -1186,7 +1283,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // credit bank with debit amount
@@ -1217,7 +1315,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // credit bank with credit amount
@@ -1248,7 +1347,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // debit bank with credit amount
@@ -1270,7 +1370,8 @@ class CustomedTransactionController extends Controller
                             $record->formatted_date,
                             $remarks,
                             Auth::User()->id,
-                            $ref
+                            $ref,
+                            $record->agent_account_sub
                         );
 
                         // credit bank with debit amount

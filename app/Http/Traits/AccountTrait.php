@@ -6,7 +6,7 @@ use Auth;
 
 trait AccountTrait
 {
-    public static function debitAccount($accountid, $amount, $ref, $transdate, $remark, $userid, $manual_ref)
+    public static function debitAccount($accountid, $amount, $ref, $transdate, $remark, $userid, $manual_ref, $account=null)
     {
 
         if($amount==0) return null;
@@ -26,10 +26,11 @@ trait AccountTrait
             'manual_ref' => $manual_ref ,
             'transdate' => $transdate ,
             'postby' => $userid ,
+            'account_sub'=>$account
         ]);
 	}
 
-    public static  function creditAccount($accountid, $amount, $ref, $transdate, $remark, $userid, $manual_ref)
+    public static  function creditAccount($accountid, $amount, $ref, $transdate, $remark, $userid, $manual_ref, $account=null)
     {
         if($amount==0) return null;
 	    $accountdetails=AccountTrait::getAccountDetails($accountid);
@@ -46,6 +47,7 @@ trait AccountTrait
     	          'manual_ref' => $manual_ref ,
     	          'transdate' => $transdate ,
     	          'postby' => $userid ,
+                  'account_sub'=>$account
 
     	        ]);
 	}

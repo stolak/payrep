@@ -170,7 +170,17 @@ public function trialbalance(Request $request){
     $data['todate']=$request->input('todate');
     if ($data['todate']=="") {$data['todate']=date("Y-m-d");}
     $data['TrialBal'] = AccountTrait::trialBal('1900-01-01', $data['todate']);
+    
     return view('account.trialbalance', $data);
+}
+
+public function balanceBreakdown(Request $request, $id){
+
+    $data['todate']=$request->input('todate');
+    if ($data['todate']=="") {$data['todate']=date("Y-m-d");}
+    $data['TrialBal'] = AccountTrait::balanceBreakdown('1900-01-01', $data['todate'], $id);
+    // $data['TrialBal'] = AccountTrait::balanceBreakdown('1900-01-01', $data['todate'], $account);
+    return view('account.balance_breakdown', $data);
 }
 public function pl(Request $request)
    {

@@ -26,7 +26,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Trial Balance</h4>
+                        <h4 class="card-title">Balance Breakdown</h4>
                     </div>
                     <div class="card-body">
                         <form method="post" name="mainform" id="mainform">
@@ -54,8 +54,8 @@
                                         <thead>
                                             <tr bgcolor="#c7c7c7">
                                                 <th>Account Name</th>
-                                                <th>Debit</th>
-                                                <th>Credit</th>
+
+                                                <th>Balance</th>
                                             </tr>
                                         </thead>
                                         @php
@@ -65,16 +65,14 @@
                                         @foreach($TrialBal as $data)
                                         <tr>
 
-                                            <td><a href="/balance-breakdown/{{ $data->accountid}}"
-                                                    target="_blank">{{  $data->accountName}}
-                                                </a> </td>
+                                            <td>{{  $data->accountName}} </td>
                                             @if ($data->Credit>0)
                                             <td style="text-align: right; ">
-                                                {{number_format(abs($data->Credit),2, '.', ',')}} </td>
-                                            <td style="text-align: right; ">0.00</td>
+                                                ( {{number_format(abs($data->Credit),2, '.', ',')}}) </td>
+
                                             @php $Totaldebit+= $data->Credit; @endphp
                                             @else
-                                            <td style="text-align: right; ">0.00</td>
+
                                             <td style="text-align: right; ">
                                                 {{number_format(abs($data->Credit),2, '.', ',')}} </td>
 
@@ -84,10 +82,13 @@
                                         @endforeach
                                         <tr>
                                             <td>Total</td>
+                                            @if ($Totalcredit-$Totaldebit>0) <td style="text-align: right; ">
+
+                                                ({{number_format(abs($Totalcredit-$Totaldebit),2, '.', ',')}}) </td>
+                                            @else
                                             <td style="text-align: right; ">
-                                                {{number_format(abs($Totaldebit),2, '.', ',')}} </td>
-                                            <td style="text-align: right; ">
-                                                {{number_format(abs($Totalcredit),2, '.', ',')}} </td>
+                                                {{number_format(abs($Totalcredit-$Totaldebit),2, '.', ',')}} </td>
+                                            @endif
                                         </tr>
 
 

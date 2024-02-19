@@ -88,12 +88,23 @@ trait AccountTrait
     public static function trialBal($from,$to) {
 	    if (date('m-d',strtotime($from))=="01-01")$from="1900-01-01";
 	    $timedate= "(DATE_FORMAT(`transdate`,'%Y-%m-%d') BETWEEN '$from' AND '$to')";
-	    return DB::Select("SELECT  Sum(`debit`-`credit`) as  Credit, accountdescription as accountName
+	    return DB::Select("SELECT  Sum(`debit`-`credit`) as  Credit, accountdescription as accountName,accountid
 	    FROM `account_transactions`
         left join account_charts on account_charts.id=account_transactions.accountid
          WHERE  $timedate
 
          group by `accountid`,`accountdescription`   order by accountName");
+
+	}
+    public static function balanceBreakdown($from, $to, $account) {
+	    if (date('m-d',strtotime($from))=="01-01")$from="1900-01-01";
+	    $timedate= "(DATE_FORMAT(`transdate`,'%Y-%m-%d') BETWEEN '$from' AND '$to')";
+	    return DB::Select("SELECT  Sum(`debit`-`credit`) as  Credit, accountdescription as accountName
+	    FROM `account_transactions`
+        left join account_charts_sub on account_charts_sub.id=account_transactions.account_sub
+         WHERE  $timedate and account_transactions.accountid='$account'
+
+         group by `account_sub`,`accountdescription`   order by accountName");
 
 	}
     public static function income($fromdate, $todate) {

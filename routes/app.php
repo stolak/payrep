@@ -50,6 +50,9 @@ Route::middleware('auth')->group(function () {
         ->name('journal');
     Route::any('trialbalance', [AccountController::class, 'trialbalance'])
         ->name('trialbalance');
+
+        Route::any('balance-breakdown/{id}', [AccountController::class, 'balanceBreakdown'])
+        ->name('balanceBreakdown');
     Route::any('pl', [AccountController::class, 'pl'])
         ->name('pl');
     Route::any('active-customer', [ReportController::class, 'activeCustomer'])

@@ -407,7 +407,6 @@ class AccountReport extends Controller
 
     public function Transaction_Summary(Request $request)
     {
-        //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
         $data['ref']=$request->input('ref');
        	$data['fromdate']=$request->input('fromdate');
        	$data['todate']=$request->input('todate');
@@ -417,7 +416,6 @@ class AccountReport extends Controller
         if ( isset( $_POST['del'] ) ) {
 
             $del=$request->input('deleteid');
-            //dd($del);
             $trans_date=db::table('account_transactions')->where('ref',$del)->value('transdate');
 
             if(db::table('financial_ends')->where('year_end_date','>=',$trans_date)->first())return back()->with('error_message',' This year perid has already been closed. Hence the transaction not deletable' );
@@ -427,6 +425,11 @@ class AccountReport extends Controller
             DB::delete("DELETE FROM `account_transactions` WHERE `ref`='$del'");
             DB::delete("DELETE FROM `pettyhandling_transactions` WHERE `ref`='$del'");
             DB::delete("DELETE FROM `temp_journal_transfer` WHERE `ref`='$del'");
+
+            DB::table('automated_record')->where('ref_no', $del)->update([
+                'process_status' => 0,
+                'processed_at' => '',
+            ]);
             return back()->with('message',' Record successfully trashed.'  );
         }
         $data['RefBatch']= AccountTrait::refBatch();
@@ -443,12 +446,12 @@ class AccountReport extends Controller
 
         if (isset($_POST['update'])) {
             $this->validate($request, ['account' => 'required']);
-            $accountdetails = $this->FetchAccountCodes($request->input('account'));
+            $accountdetails = AccountTrait::getAccountDetails($request->input('account'));
             if (!$accountdetails) {
                 return back()->with('error_message', ' Record not updated! Invalid Account selected');
             }
 
-            DB::table('tblaccount_transaction')->where('id', $request->input('id'))->update([
+            DB::table('account_transactions')->where('id', $request->input('id'))->update([
                 'groupid' => $accountdetails->groupid,
                 'headid' => $accountdetails->headid,
                 'subheadid' => $accountdetails->subheadid,

@@ -233,7 +233,11 @@ class CustomedTransactionController extends Controller
 
                     } else {
                         try {
-                            $filesop4 = preg_replace('/[^\d.]/', '', $filesop[4]);
+                            
+                            
+
+                            $filesop4 = preg_replace('/[^\d\-\.]/', '', $filesop[4]);
+                            // dd("jdjdjdcdc");
 
                             $id = DB::table('agents')->insertGetId([
                                 'agent_name' => $filesop[1],
@@ -260,27 +264,51 @@ class CustomedTransactionController extends Controller
                                 DB::table('agents')->where('id', $id)->update([
                                     'account_id' => $account,
                                 ]);
+if(floatval($filesop4)<0){
+    AccountTrait::creditAccount(
+        $agentPayable,
+        abs( $filesop4),
+        $ref,
+        date('Y-m-d'),
+        $filesop[1] . 'Opening Balance',
+        Auth::User()->id,
+        $ref
+    );
 
-                                AccountTrait::debitAccount(
-                                    $agentPayable,
-                                    !is_numeric($filesop4) ? 0 : $filesop4,
-                                    $ref,
-                                    date('Y-m-d'),
-                                    $filesop[1] . 'Opening Balance',
-                                    Auth::User()->id,
-                                    $ref
-                                );
+    AccountTrait::debitAccount(
+        $agentWalletId,
+        abs( $filesop4),
+        $ref,
+        date('Y-m-d'),
+        $filesop[1] . 'Opening Balance',
+        Auth::User()->id,
+        $ref,
+        $account
+    );
+}else{
 
-                                AccountTrait::creditAccount(
-                                    $agentWalletId,
-                                    !is_numeric($filesop4) ? 0 : $filesop4,
-                                    $ref,
-                                    date('Y-m-d'),
-                                    $filesop[1] . 'Opening Balance',
-                                    Auth::User()->id,
-                                    $ref,
-                                    $account
-                                );
+    AccountTrait::debitAccount(
+        $agentPayable,
+        abs( $filesop4),
+        $ref,
+        date('Y-m-d'),
+        $filesop[1] . 'Opening Balance',
+        Auth::User()->id,
+        $ref
+    );
+
+    AccountTrait::creditAccount(
+        $agentWalletId,
+        abs( $filesop4),
+        $ref,
+        date('Y-m-d'),
+        $filesop[1] . 'Opening Balance',
+        Auth::User()->id,
+        $ref,
+        $account
+    );
+}
+                               
 
                             
                         } catch (\Exception $e) {
@@ -398,7 +426,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Bank Transfer";
+                        $remarks = "Bank Transfer - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
@@ -502,7 +530,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Bank Transfer Reversal";
+                        $remarks = "Bank Transfer Reversal  - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::creditAccount(
@@ -605,7 +633,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "POS Transfer";
+                        $remarks = "POS Withdral - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::creditAccount(
@@ -736,7 +764,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "POS Reversal";
+                        $remarks = "POS withdral Reversal - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
@@ -839,7 +867,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "IRecharge";
+                        $remarks = "IRecharge - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
@@ -942,7 +970,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "IRecharge Reversal";
+                        $remarks = "IRecharge Reversal - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::creditAccount(
@@ -1044,7 +1072,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Cash Out";
+                        $remarks = "Cash Out - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::creditAccount(
@@ -1077,7 +1105,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Cash Out";
+                        $remarks = "Cash Out - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
@@ -1111,7 +1139,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Settlement";
+                        $remarks = "Settlement - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
@@ -1144,7 +1172,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Device Retrieval";
+                        $remarks = "Device Retrieval - $record->account_name";
 
                         //credit agent wallet with debit amount
                         AccountTrait::creditAccount(
@@ -1177,7 +1205,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Pos Sales Revenue";
+                        $remarks = "Pos Sales Revenue - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::creditAccount(
@@ -1209,7 +1237,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Pos Sales Revenue";
+                        $remarks = "Pos Sales Revenue - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
@@ -1241,7 +1269,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Funding";
+                        $remarks = "Funding - $record->account_name";
 
                         //credit agent wallet with debit amount
                         AccountTrait::creditAccount(
@@ -1273,7 +1301,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Funding";
+                        $remarks = "Deduction - $record->account_name";
 
                         //debit agent wallet with debit amount
                         AccountTrait::debitAccount(
@@ -1305,7 +1333,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "wallet top-up";
+                        $remarks = "wallet top-up - $record->account_name";
 
                         //credit agent wallet with credit amount
                         AccountTrait::creditAccount(
@@ -1337,7 +1365,7 @@ class CustomedTransactionController extends Controller
                     foreach ($data['records'] as $record) {
 
                         $ref = AccountTrait::RefNo();
-                        $remarks = "Wallet Transfer";
+                        $remarks = "Wallet Transfer - $record->account_name";
 
                         //credit agent wallet with credit amount
                         AccountTrait::creditAccount(

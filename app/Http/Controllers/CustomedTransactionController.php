@@ -233,16 +233,21 @@ class CustomedTransactionController extends Controller
 
                     } else {
                         try {
+                            $string = mb_convert_encoding($filesop[1], 'UTF-8', 'UTF-8');
+                            $filesop1= (preg_replace('/[^\PC\s]/u', '',$string));
                             
-                            
+                            $string = mb_convert_encoding($filesop[3], 'UTF-8', 'UTF-8');
+                            $filesop3= (preg_replace('/[^\PC\s]/u', '',$string));
 
-                            $filesop4 = preg_replace('/[^\d\-\.]/', '', $filesop[4]);
+                            // $filesop4 = preg_replace('/[^\d\-\.]/', '', $filesop[4]);
+                            $filesop4 = (float) str_replace(',', '',  $filesop[4]);
+                            // $filesop4 = $filesop[4];
                             // dd("jdjdjdcdc");
 
                             $id = DB::table('agents')->insertGetId([
-                                'agent_name' => $filesop[1],
+                                'agent_name' => $filesop1,
                                 'account_ref' => $filesop[2],
-                                'business_name' => $filesop[3],
+                                'business_name' =>$filesop3,
                                 'opening_bal' => !is_numeric($filesop4) ? 0 : $filesop4,
                                 'as_at' => $filesop[5],
 
@@ -257,7 +262,7 @@ class CustomedTransactionController extends Controller
                                     'headid' => $agentWallet->headid,
                                     'subheadid' => $agentWallet->subheadid,
                                     'accountno' => $filesop[2],
-                                    'accountdescription' => $filesop[1],
+                                    'accountdescription' => $filesop1,
                                     'status' => 1,
                                     'rank' => 0,
                                 ]);
@@ -270,7 +275,7 @@ if(floatval($filesop4)<0){
         abs( $filesop4),
         $ref,
         date('Y-m-d'),
-        $filesop[1] . 'Opening Balance',
+        $filesop1 . ' Opening Balance',
         Auth::User()->id,
         $ref
     );
@@ -280,7 +285,7 @@ if(floatval($filesop4)<0){
         abs( $filesop4),
         $ref,
         date('Y-m-d'),
-        $filesop[1] . 'Opening Balance',
+        $filesop1. 'Opening Balance',
         Auth::User()->id,
         $ref,
         $account
@@ -292,7 +297,7 @@ if(floatval($filesop4)<0){
         abs( $filesop4),
         $ref,
         date('Y-m-d'),
-        $filesop[1] . 'Opening Balance',
+        $filesop1 . 'Opening Balance',
         Auth::User()->id,
         $ref
     );
@@ -302,7 +307,7 @@ if(floatval($filesop4)<0){
         abs( $filesop4),
         $ref,
         date('Y-m-d'),
-        $filesop[1] . 'Opening Balance',
+        $filesop1 . 'Opening Balance',
         Auth::User()->id,
         $ref,
         $account
@@ -312,7 +317,7 @@ if(floatval($filesop4)<0){
 
                             
                         } catch (\Exception $e) {
-
+                            // dd($e);
                             DB::table('failed_agent_upload')->insertGetId([
                                 'account_number' => $filesop[2],
                                 'system_ref' => $refno,

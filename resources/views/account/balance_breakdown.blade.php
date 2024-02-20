@@ -59,6 +59,7 @@
                                             </tr>
                                         </thead>
                                         @php
+                                        $total=0;
                                         $Totaldebit=0;
                                         $Totalcredit=0;
                                         @endphp
@@ -66,28 +67,29 @@
                                         <tr>
 
                                             <td>{{  $data->accountName}} </td>
+                                            @php $total += $data->Credit; @endphp
                                             @if ($data->Credit>0)
                                             <td style="text-align: right; ">
                                                 ( {{number_format(abs($data->Credit),2, '.', ',')}}) </td>
 
-                                            @php $Totaldebit+= $data->Credit; @endphp
+
                                             @else
 
                                             <td style="text-align: right; ">
                                                 {{number_format(abs($data->Credit),2, '.', ',')}} </td>
 
-                                            @php $Totalcredit+= $data->Credit; @endphp
+
                                             @endif
                                         </tr>
                                         @endforeach
                                         <tr>
                                             <td>Total</td>
-                                            @if ($Totalcredit-$Totaldebit>0) <td style="text-align: right; ">
+                                            @if ($total>0) <td style="text-align: right; ">
 
-                                                ({{number_format(abs($Totalcredit-$Totaldebit),2, '.', ',')}}) </td>
+                                                ({{number_format(abs($total),2, '.', ',')}}) </td>
                                             @else
                                             <td style="text-align: right; ">
-                                                {{number_format(abs($Totalcredit-$Totaldebit),2, '.', ',')}} </td>
+                                                {{number_format(abs($total),2, '.', ',')}} </td>
                                             @endif
                                         </tr>
 

@@ -102,7 +102,7 @@ class CustomedTransactionController extends Controller
 
                     } else {
 
-                        if (($filesop[16] == 'successful')) {
+                        // if (($filesop[16] == 'successful')) {
                             $searchText = $filesop[6];
                             $matchingObjects = array_filter($transactionDetails, function ($obj) use ($searchText) {
                                 return $obj->description === $searchText;
@@ -154,6 +154,7 @@ class CustomedTransactionController extends Controller
                                     'transaction_type_id' => reset($matchingObjects)->id ?? 0,
                                     'account_id' => reset($matchingObjects)->account_id ?? 0,
                                     'formatted_date' => $this->formattedDate($filesop[0]),
+                                    'descriptions' => $request->input('description'),
                                 ]);
                             } catch (\Exception $e) {
                                 DB::table('failed_transaction_upload')->insert([
@@ -163,7 +164,7 @@ class CustomedTransactionController extends Controller
                                 ]);
                             }
 
-                        }
+                        // }
                     }
                 }
             }
@@ -1431,5 +1432,56 @@ if(floatval($filesop4)<0){
 
         return view('customedTransaction.process_uploads', $data);
     }
+
+    public function viewGroupUpoad(Request $request)
+    {
+
+        if (URL::previous() !== URL::current()) {
+            $request->session()->forget('transactionType');
+        }
+        $data['transactionType'] = $request->input('transactionType');
+        if ($data['transactionType'] == '') {
+            $data['transactionType'] = Session::get('transactionType');
+        }
+        Session(['transactionType' => $data['transactionType']]);
+
+        $data['toDate'] = $request->input('toDate');
+        if ($data['toDate'] == "") {
+            $data['toDate'] = date("Y-m-d");
+        }
+
+        $data['fromDate'] = $request->input('fromDate');
+        if ($data['fromDate'] == "") {
+            $data['fromDate'] = date("Y") . '-01-01';
+        }
+
+        $data['description'] = $request->input('description');
+        
+
+        // $data['records'] = AutomatedUploadTrait::searchUpload('', $data['fromDate'], $data['toDate'], 0);
+
+        $data['records'] = DB::table('automated_record')
+       
+        ->select(
+           
+            'descriptions', 'upload_batch',
+            DB::raw('MAX(`process_status`) as max_process_status'), 
+            DB::raw('MAX(`formatted_date`) as max_formatted_date'),
+            DB::raw('MIN(`process_status`) as min_process_status'), 
+            DB::raw('MIN(`formatted_date`) as min_formatted_date'),
+            DB::raw('sum(`debit`) as debits'),
+            DB::raw('sum(`credit`) as credits'),
+            DB::raw('sum(`fees`) as fees'),
+           
+        )
+        
+        ->groupBy('descriptions', 'upload_batch')
+        ->get();
+
+        $data['transactionTypes'] = AutomatedUploadTrait::transactionTypes();
+
+        return view('customedTransaction.view-group-upload', $data);
+    }
+   
 
 }

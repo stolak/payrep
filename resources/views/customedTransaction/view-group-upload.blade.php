@@ -101,7 +101,10 @@
                                         </td>
 
                                         <td>
-                                            view
+                                            <a class="btn btn-sm bg-success-light"
+                                                href="/custom/upload/{{$list->upload_batch}}">
+                                                view
+                                            </a>
                                         </td>
 
                                     </tr>

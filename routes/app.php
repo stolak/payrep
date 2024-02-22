@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         Route::any('/pre-journal-post',     [AccountSetup::class, 'PreJournalPost']);
         Route::any('custom/upload',         [CustomedTransactionController::class, 'upload']);
+        Route::any('custom/upload/{id}',         [CustomedTransactionController::class, 'uploadDetails']);
 
         Route::any('view/group/upload',         [CustomedTransactionController::class, 'viewGroupUpoad']);
 

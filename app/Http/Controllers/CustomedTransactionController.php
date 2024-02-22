@@ -82,7 +82,6 @@ class CustomedTransactionController extends Controller
                 ->select('product_types_text.description', 'product_types.id', 'product_types.account_id')
                 ->get()->toArray();
 
-            // dd($transactionDetails);
             $mimes = array('application/vnd.ms-excel', 'text/csv', 'text/tsv');
             $file = $_FILES['file']['tmp_name'];
             if (($file == "") || !(in_array($_FILES['file']['type'], $mimes))) {
@@ -185,6 +184,8 @@ class CustomedTransactionController extends Controller
             $request->session()->forget('transactionType');
         }
 
+        $data['asat'] = $request->input('asat');
+
         $data['toDate'] = $request->input('toDate');
         if ($data['toDate'] == "") {
             $data['toDate'] = date("Y-m-d");
@@ -194,9 +195,11 @@ class CustomedTransactionController extends Controller
         if ($data['fromDate'] == "") {
             $data['fromDate'] = date("Y") . '-01-01';
         }
-        $data['description'] = $request->input('description');
+       
         if (isset($_POST['upload'])) {
-
+            $this->validate($request, [
+                'asat' => 'required|string',
+            ]);
             $refno = AccountTrait::RefNo();
             $agentPayable = DB::table('account_setups')
             ->where('id', 11)
@@ -240,10 +243,9 @@ class CustomedTransactionController extends Controller
                             $string = mb_convert_encoding($filesop[3], 'UTF-8', 'UTF-8');
                             $filesop3= (preg_replace('/[^\PC\s]/u', '',$string));
 
-                            // $filesop4 = preg_replace('/[^\d\-\.]/', '', $filesop[4]);
+
                             $filesop4 = (float) str_replace(',', '',  $filesop[4]);
-                            // $filesop4 = $filesop[4];
-                            // dd("jdjdjdcdc");
+
 
                             $id = DB::table('agents')->insertGetId([
                                 'agent_name' => $filesop1,
@@ -275,7 +277,7 @@ if(floatval($filesop4)<0){
         $agentPayable,
         abs( $filesop4),
         $ref,
-        date('Y-m-d'),
+        $request->input('asat'),
         $filesop1 . ' Opening Balance',
         Auth::User()->id,
         $ref
@@ -285,7 +287,7 @@ if(floatval($filesop4)<0){
         $agentWalletId,
         abs( $filesop4),
         $ref,
-        date('Y-m-d'),
+        $request->input('asat'),
         $filesop1. 'Opening Balance',
         Auth::User()->id,
         $ref,
@@ -297,7 +299,7 @@ if(floatval($filesop4)<0){
         $agentPayable,
         abs( $filesop4),
         $ref,
-        date('Y-m-d'),
+        $request->input('asat'),
         $filesop1 . 'Opening Balance',
         Auth::User()->id,
         $ref
@@ -307,7 +309,7 @@ if(floatval($filesop4)<0){
         $agentWalletId,
         abs( $filesop4),
         $ref,
-        date('Y-m-d'),
+        $request->input('asat'),
         $filesop1 . 'Opening Balance',
         Auth::User()->id,
         $ref,
@@ -318,13 +320,13 @@ if(floatval($filesop4)<0){
 
                             
                         } catch (\Exception $e) {
-                            // dd($e);
+                           
                             DB::table('failed_agent_upload')->insertGetId([
                                 'account_number' => $filesop[2],
                                 'system_ref' => $refno,
                             ]);
                             DB::table('account_transactions')->where('ref', '=', $ref)->delete();
-                            // dd($e);
+                           
 
                         }
 
@@ -363,7 +365,8 @@ if(floatval($filesop4)<0){
 
         $data['description'] = $request->input('description');
 
-        $data['records'] = DB::table('automated_record')->leftJoin('account_charts_sub', 'account_charts_sub.accountno', 'automated_record.account_number')
+        $data['records'] = DB::table('automated_record')
+        ->leftJoin('account_charts_sub', 'account_charts_sub.accountno', 'automated_record.account_number')
             ->select(
                 DB::raw('sum(`debit`) as debits'),
                 DB::raw('sum(`credit`) as credits'),
@@ -385,7 +388,9 @@ if(floatval($filesop4)<0){
                 'transaction_type'
             )
             ->where('transaction_type_id', '=', $data['transactionType'])
-            ->where('process_status', 0)->where('formatted_date', ">=", $data['fromDate'])->where('formatted_date', "<=", $data['toDate'])
+            ->where('process_status', 0)
+            ->where('formatted_date', ">=", $data['fromDate'])
+            ->where('formatted_date', "<=", $data['toDate'])
             ->groupBy('formatted_date', 'account_id', 'account_number', 'transaction_type')
             ->get();
 
@@ -1482,6 +1487,42 @@ if(floatval($filesop4)<0){
 
         return view('customedTransaction.view-group-upload', $data);
     }
-   
+    public function uploadDetails(Request $request, $id)
+    {
+
+        if (URL::previous() !== URL::current()) {
+            $request->session()->forget('transactionType');
+        }
+        $data['transactionType'] = $request->input('transactionType');
+        if ($data['transactionType'] == '') {
+            $data['transactionType'] = Session::get('transactionType');
+        }
+        Session(['transactionType' => $data['transactionType']]);
+
+        if (isset($_POST['delete'] ) ) {
+            if(DB::table('automated_record')
+            ->where('id', '=', $request->input('id'))
+            ->where('process_status', '=', 0)          
+            ->delete())
+            return back()->with('message', ' Record successfully trashed.');
+            return back()->with('error_message', ' Action not perform! it is either the record have been processed or deleted.');
+        }
+       
+        if (isset($_POST['modify'] ) ) {
+            if(DB::table('automated_record')
+            ->where('id', '=', $request->input('id'))
+            ->where('process_status', '=', 0)
+            ->update(['service_provider' => $request->input('provider')]))
+            return back()->with('message', ' Record successfully trashed.');
+            return back()->with('error_message', ' Action not perform! it is either the record have been processed or deleted.');
+        }
+       
+
+        $data['records'] = AutomatedUploadTrait::uploadDetails($id,  $request->input('transactionType'));
+
+        $data['transactionTypes'] = AutomatedUploadTrait::transactionTypes();
+
+        return view('customedTransaction.upload-details', $data);
+    }   
 
 }

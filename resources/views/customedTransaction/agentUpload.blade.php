@@ -10,7 +10,7 @@
         <div class="page-header">
             <div class="row">
                 <div class="col">
-                    <h3 class="page-title">Transaction upload</h3>
+                    <h3 class="page-title">Agent wallet Balance & upload</h3>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Home</a></li>
                         <li class="breadcrumb-item active">Agent upload</li>

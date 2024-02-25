@@ -916,7 +916,7 @@ class AccountSetup extends Controller {
 
                 $refno= AccountTrait::RefNo();
                 $userid=Auth::user()->id;
-
+try {
                 AccountTrait::DebitAccount($data['particular_accountid'],$data['amount'],$refno,$data['transdate'] !== null ? $data['transdate'] : date("Y-m-d"),$data['remark'],$userid,$data['manual_ref']);
                 AccountTrait::CreditAccount($data['petty_accountid'],$data['amount'],$refno, $data['transdate'] !== null ? $data['transdate'] : date("Y-m-d"), $data['remark'],$userid,$data['manual_ref']);
 
@@ -931,9 +931,13 @@ class AccountSetup extends Controller {
                     'manual_ref' => $data['manual_ref'] ,
                     'petty_accountid' => $data['petty_accountid'] ,
                 ]);
+            } catch (\Exception $e) {
+                DB::table('account_transactions')->where('ref', '=', $refno)->delete();
+                return back()->with('error_message', ' transaction filed. The account not properly setup.');
+            }
 
                 return back()->with('message','New record successfully added.'  );
-                    //return back()->withInput();
+                   
             }
             if ( isset( $_POST['update'] ) ) {
                 $this->validate($request, [

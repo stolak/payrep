@@ -152,6 +152,8 @@ class LoanTransactionController extends Controller
             Loan::destroy($request->input('id'));
             return back()->with('message', ' Record successfully trashed.');
         }
+
+        
         $data['Loans']= Loan::where('stage', '=', 1)
             ->where('customer_id', ($data['customer']=='All'||$data['customer']=='')? '<>':'=', $data['customer'])
             ->leftJoin('users', 'users.id', '=', 'loans.marketer_id')

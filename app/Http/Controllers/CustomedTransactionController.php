@@ -90,7 +90,7 @@ class CustomedTransactionController extends Controller
 
                 $handle = fopen($file, "r");
                 $c = 0;
-
+                $defaultSetup = DB::table('account_setups')->get()->toArray();
                 while (($filesop = fgetcsv($handle, 1000, ",")) !== false) {
 
                     $dateval = $filesop[0];
@@ -106,7 +106,19 @@ class CustomedTransactionController extends Controller
                             $matchingObjects = array_filter($transactionDetails, function ($obj) use ($searchText) {
                                 return $obj->description === $searchText;
                             });
-
+                            $bank_account =reset($matchingObjects)->account_id ?? 0;
+                            if((reset($matchingObjects)->id ?? 0)===1){
+                           
+                            $filesop7=$filesop[7];
+                            $bank_account1 = array_filter($defaultSetup, function ($obj) use ($filesop7) {
+                                return $obj->particular === $filesop7;
+                            });
+                            if((reset($bank_account1)->account_id ?? 0)>0){
+                                $bank_account=reset($bank_account1)->account_id;
+                            }
+                            
+                            
+                        }
                             $filesop10 = preg_replace('/[^\d.]/', '', $filesop[10]);
                             $filesop11 = preg_replace('/[^\d.]/', '', $filesop[11]);
                             $filesop12 = preg_replace('/[^\d.]/', '', $filesop[12]);
@@ -151,7 +163,7 @@ class CustomedTransactionController extends Controller
                                     'upload_title' => $data['description'],
                                     'upload_batch' => $refno,
                                     'transaction_type_id' => reset($matchingObjects)->id ?? 0,
-                                    'account_id' => reset($matchingObjects)->account_id ?? 0,
+                                    'account_id' => $bank_account,
                                     'formatted_date' => $this->formattedDate($filesop[0]),
                                     'descriptions' => $request->input('description'),
                                 ]);
@@ -170,7 +182,7 @@ class CustomedTransactionController extends Controller
             return back()->with('message', 'record successfully updated.');
         }
 
-        $data['records'] = AutomatedUploadTrait::searchUpload('', $data['fromDate'], $data['toDate'], 0);
+        $data['records'] = AutomatedUploadTrait::searchUpload($data['transactionType'], $data['fromDate'], $data['toDate'], 0);
 
         $data['transactionTypes'] = AutomatedUploadTrait::transactionTypes();
 
@@ -252,7 +264,7 @@ class CustomedTransactionController extends Controller
                                 'account_ref' => $filesop[2],
                                 'business_name' =>$filesop3,
                                 'opening_bal' => !is_numeric($filesop4) ? 0 : $filesop4,
-                                'as_at' => $filesop[5],
+                                'as_at' => $request->input('asat'),
 
                             ]);
 
@@ -336,7 +348,7 @@ if(floatval($filesop4)<0){
             return back()->with('message', 'record successfully updated.');
         }
 
-        $data['records'] = AutomatedUploadTrait::agentsList();
+        $data['records'] = AutomatedUploadTrait::agentsList( $data['toDate'], $data['fromDate']);
 
         return view('customedTransaction.agentUpload', $data);
     }
@@ -1509,10 +1521,19 @@ if(floatval($filesop4)<0){
         }
        
         if (isset($_POST['modify'] ) ) {
+            $defaultSetup = DB::table('account_setups')->get()->toArray();
+                        $filesop7=$request->input('provider');
+                            $bank_account1 = array_filter($defaultSetup, function ($obj) use ($filesop7) {
+                                return $obj->particular === $filesop7;
+                            });
+                            
+                            $bank_account=reset($bank_account1)->account_id??0;
+                            
             if(DB::table('automated_record')
             ->where('id', '=', $request->input('id'))
             ->where('process_status', '=', 0)
-            ->update(['service_provider' => $request->input('provider')]))
+            ->update(['service_provider' => $request->input('provider'),
+            'account_id' => $bank_account]))
             return back()->with('message', ' Record successfully trashed.');
             return back()->with('error_message', ' Action not perform! it is either the record have been processed or deleted.');
         }

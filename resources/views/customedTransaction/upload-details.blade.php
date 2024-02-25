@@ -36,7 +36,7 @@
                                     <div class="form-group">
                                         <label>Transaction Type </label>
 
-                                        <select class="select2 form-control" name="status" id="status"
+                                        <select class="select2 form-control" name="transactionType" id="transactionType"
                                             onchange='Reload("mainform");'>
                                             <option value="All">--All--</option>
                                             @foreach($transactionTypes as $list)
@@ -119,7 +119,8 @@
                                         </td>
                                         <td>
                                             {{$list->service_provider}}
-                                            @if($list->process_status===0)<a class="btn btn-sm bg-danger-light"
+                                            @if($list->process_status===0 && $list->transaction_type_id===1)<a
+                                                class="btn btn-sm bg-danger-light"
                                                 href="javascript: modify('{{$list->id}}', '{{$list->service_provider}}')">
                                                 <i class="fe fe-pencil"></i>
                                             </a>
@@ -277,7 +278,7 @@
                                         <option value="9psb">
                                             9psb</option>
                                         <option value="uba">
-                                            uba</option>
+                                            VED</option>
 
                                     </select>
                                 </div>

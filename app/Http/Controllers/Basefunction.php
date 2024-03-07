@@ -273,9 +273,9 @@ class Basefunction extends Controller
 	}
 	Public function AccountList($hid,$shid) {
 	    $qhid=1;
-	    if($hid!='')$qhid="tblaccountchart.`headid`='$hid'";
+	    if($hid !=='')$qhid="tblaccountchart.`headid`='$hid'";
 	    $qshid=1;
-	    if($shid!='')$qshid="tblaccountchart.`subheadid`='$shid'";
+	    if($shid!=='')$qshid="tblaccountchart.`subheadid`='$shid'";
 	    //die("SELECT tblaccountchart.*,accounthead,subhead  FROM `tblaccountchart` left join tblaccountsubhead on tblaccountsubhead.id=tblaccountchart.`subheadid` left join tblaccounthead on tblaccounthead.id=tblaccountchart.`headid`
 	    //WHERE $qhid and $qshid order by `accountno`");
 	    return DB::Select("SELECT tblaccountchart.*,accounthead,subhead,tblafs.afs

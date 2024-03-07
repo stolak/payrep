@@ -390,9 +390,11 @@ if(floatval($filesop4)<0){
                 DB::raw('sum(`aggregator_referral`) as aggregator_referral'),
                 DB::raw('sum(`company_commission`) as company_commission'),
                 'account_number',
+                DB::raw('MAX(`service_provider`) as service_provider'), 
                 DB::raw('MAX(`account_name`) as account_name'), 
                 DB::raw('MAX(`account_charts_sub`.`chart_id`) as agent_account'),
                 DB::raw('MAX(`account_charts_sub`.`id`) as agent_account_sub'),
+                
                 
 
                 'account_id',
@@ -436,6 +438,31 @@ if(floatval($filesop4)<0){
                 return $obj->id === 10;
             });
             $company_commission = reset($company_commission1)->account_id ?? 0;
+
+            ///////
+
+            $company_commissionIrecharge1 = array_filter($defaultSetup, function ($obj) {
+                return $obj->id === 16;
+            });
+            $company_commissionIrecharge = reset($company_commissionIrecharge1)->account_id ?? 0;
+
+            $company_commission9pb1 = array_filter($defaultSetup, function ($obj) {
+                return $obj->id === 17;
+            });
+            $company_commission9pb = reset($company_commission9pb1)->account_id ?? 0;
+
+            $company_commissionvfd1 = array_filter($defaultSetup, function ($obj) {
+                return $obj->id === 18;
+            });
+            $company_commissionvfd = reset($company_commissionvfd1)->account_id ?? 0;
+
+            $company_commissionhope1 = array_filter($defaultSetup, function ($obj) {
+                return $obj->id === 19;
+            });
+            $company_commissionhope = reset($company_commissionhope1)->account_id ?? 0;
+
+
+            //////
 
 
             $stamp_duty_account1 = array_filter($defaultSetup, function ($obj) {
@@ -535,8 +562,18 @@ if(floatval($filesop4)<0){
                             $ref
                         );
                         // credit company_commission payable
+
+                        
+                        $company_commission=$company_commission9pb;  
+                        
+                        if($record->service_provider==='vfd'){
+                            $company_commission=$company_commissionvfd;  
+                        }
+                        if($record->service_provider==='hope'){
+                            $company_commission=$company_commissionhope;  
+                        }
                         AccountTrait::creditAccount(
-                            $company_commission,
+                             $company_commission,
                             !is_numeric($record->company_commission) ? 0 : $record->company_commission,
                             $ref,
                             $record->formatted_date,
@@ -639,6 +676,14 @@ if(floatval($filesop4)<0){
                             $ref
                         );
                         // credit company_commission payable
+                        $company_commission=$company_commission9pb;  
+                        
+                        if($record->service_provider==='vfd'){
+                            $company_commission=$company_commissionvfd;  
+                        }
+                        if($record->service_provider==='hope'){
+                            $company_commission=$company_commissionhope;  
+                        }
                         AccountTrait::debitAccount(
                             $company_commission,
                             !is_numeric($record->company_commission) ? 0 : $record->company_commission,
@@ -977,7 +1022,7 @@ if(floatval($filesop4)<0){
                         );
                         // credit company_commission payable
                         AccountTrait::creditAccount(
-                            $company_commission,
+                            $company_commissionIrecharge,
                             !is_numeric($record->company_commission) ? 0 : $record->company_commission,
                             $ref,
                             $record->formatted_date,
@@ -1079,7 +1124,7 @@ if(floatval($filesop4)<0){
                         );
                         // credit company_commission payable
                         AccountTrait::debitAccount(
-                            $company_commission,
+                            $company_commissionIrecharge,
                             !is_numeric($record->company_commission) ? 0 : $record->company_commission,
                             $ref,
                             $record->formatted_date,

@@ -65,14 +65,12 @@ class AccountSetup extends Controller {
         $data['AFS'] = $this->AFS();
         $data['AccountHead'] = $this->AccountHead();
         $data['SubAccountList'] = $this->SubAccountList($data['acchead']);
-        //dd($data['SubAccountList']);
         return view('AccountSetup.subaccount', $data);
 
     }
 
 
     public function AccountChart(Request $request) {
-        //if (!$this->AuthenticateRoute("new-brand")) return view('lock.index');
         $data['subhead']=$request->input('subhead');
         $data['acchead']=$request->input('acchead');
         if($data['acchead']==Session::get('acchead')||$data['acchead']==''){if($data['subhead']==''){$data['subhead']=Session::get('subhead');}}
